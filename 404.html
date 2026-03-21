@@ -2,29 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>DuelZone</title>
   <script>
-    // GitHub Pages SPA routing fix
-    // When someone visits /hi-/chess, GitHub serves this 404.html
-    // We save the slug to sessionStorage then redirect to /hi-/
-    // index.html then reads it and routes to the right game
     (function () {
-      var path  = window.location.pathname; // e.g. /hi-/chess
-      var parts = path.split('/').filter(Boolean); // ['hi-','chess']
-      // parts[0] = repo name, parts[1+] = game slug
-      var slug  = parts.length > 1 ? parts.slice(1).join('/') : '';
-      if (slug) {
-        sessionStorage.setItem('dz_gh_slug', slug);
+      var KNOWN = ['tic-tac-toe','connect-four','rock-paper-scissors','tap-battle',
+        'hand-cricket','2048-duel','air-hockey','password-breaker','memory-flip',
+        'connect-dots','chess','battleship','checkers','darts','ping-pong','tetris',
+        'reaction-duel','ludo','sudoku','carrom','minesweeper','bomberman',
+        'space-dodge','star-catcher','tanks','territory','draw-and-guess'];
+
+      var path  = window.location.pathname;
+      var parts = path.split('/').filter(Boolean);
+
+      // Find game slug
+      var slug = null;
+      for (var i = parts.length - 1; i >= 0; i--) {
+        if (KNOWN.indexOf(parts[i]) !== -1) { slug = parts[i]; break; }
       }
-      // Redirect to base (keep query string and hash)
-      var base  = '/' + (parts[0] || '') + '/';
-      var qs    = window.location.search  || '';
-      var hash  = window.location.hash   || '';
-      window.location.replace(
-        window.location.origin + base + qs + hash
-      );
+
+      // Find base
+      var base = '/';
+      if (slug) {
+        var slugIdx = parts.indexOf(slug);
+        if (slugIdx > 0) base = '/' + parts.slice(0, slugIdx).join('/') + '/';
+      } else {
+        if (parts.length > 0) base = '/' + parts[0] + '/';
+      }
+
+      // Save slug to sessionStorage
+      if (slug) {
+        try { sessionStorage.setItem('dz_gh_slug', slug); } catch(e) {}
+      }
+
+      var qs   = window.location.search  || '';
+      var hash = window.location.hash    || '';
+      window.location.replace(window.location.origin + base + qs + hash);
     })();
   </script>
 </head>
-<body></body>
+<body style="background:#07080f;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
+  <div style="text-align:center;opacity:0.5">
+    <div style="font-size:2rem;margin-bottom:12px">🎮</div>
+    <div>Loading DuelZone…</div>
+  </div>
+</body>
 </html>

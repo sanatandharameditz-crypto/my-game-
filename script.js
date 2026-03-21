@@ -8721,21 +8721,39 @@ window._dzRouter = (function () {
 
     if (!screenId) return;
 
-    // Hide hub immediately
+    // ── Triple-fallback routing so blank screen never happens ──
+    var _routed = false;
+
+    function _doRoute() {
+      if (_routed) return;
+      _routed = true;
+      // Hide hub every time — defensive against game inits re-showing it
+      var h = document.getElementById('screen-hub');
+      if (h) { h.classList.add('hidden'); h.style.setProperty('display','none','important'); }
+      _routeFromSlug(slug);
+      // Re-show hub display after routing (so hub works again when user goes back)
+      setTimeout(function() {
+        var hub2 = document.getElementById('screen-hub');
+        if (hub2) hub2.style.removeProperty('display');
+      }, 500);
+    }
+
+    // Hide hub immediately — before any game script re-shows it
     var hub = document.getElementById('screen-hub');
     if (hub) hub.classList.add('hidden');
 
-    function _doRoute() {
-      var h = document.getElementById('screen-hub');
-      if (h) h.classList.add('hidden');
-      _routeFromSlug(slug);
+    // Fallback 1: DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(_doRoute, 100);
+      });
     }
-
-    if (document.readyState === 'complete') {
-      _doRoute();
-    } else {
-      window.addEventListener('load', _doRoute);
-    }
+    // Fallback 2: load event
+    window.addEventListener('load', function() {
+      setTimeout(_doRoute, 50);
+    });
+    // Fallback 3: timeout safety net (catches edge cases)
+    setTimeout(_doRoute, 2500);
   })();
 
   return api;
@@ -9171,6 +9189,17 @@ var DZShare = (function () {
     _wire();
   }
 
-  return { setResult:setResult, openModal:openModal, closeModal:closeModal, getChallenge: function(){ return _challenge; } };
+  return {
+    setResult:  setResult,
+    openModal:  openModal,
+    closeModal: closeModal,
+    getChallenge: function(){ return _challenge; },
+    // Public aliases for inline onclick handlers
+    _wa:          function(){ _shareWhatsApp(); },
+    _ig:          function(){ _shareInstagram(); },
+    _copy:        function(){ _copyLink(); },
+    _saveImg:     function(){ _saveImage(); },
+    _copyCaption: function(){ _copyCaption(); }
+  };
 
 })();
