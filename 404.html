@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DuelZone</title>
+  <script>
+    // GitHub Pages SPA routing fix
+    // When someone visits /hi-/chess, GitHub serves this 404.html
+    // We save the slug to sessionStorage then redirect to /hi-/
+    // index.html then reads it and routes to the right game
+    (function () {
+      var path  = window.location.pathname; // e.g. /hi-/chess
+      var parts = path.split('/').filter(Boolean); // ['hi-','chess']
+      // parts[0] = repo name, parts[1+] = game slug
+      var slug  = parts.length > 1 ? parts.slice(1).join('/') : '';
+      if (slug) {
+        sessionStorage.setItem('dz_gh_slug', slug);
+      }
+      // Redirect to base (keep query string and hash)
+      var base  = '/' + (parts[0] || '') + '/';
+      var qs    = window.location.search  || '';
+      var hash  = window.location.hash   || '';
+      window.location.replace(
+        window.location.origin + base + qs + hash
+      );
+    })();
+  </script>
+</head>
+<body></body>
+</html>
