@@ -8633,14 +8633,20 @@ window._dzRouter = (function () {
 
   // ── Extract just the game slug from current URL ───────────
   function _currentSlug() {
-    // If redirected from 404.html via sessionStorage, use that
+    // Priority 1: set by early script in index.html (from ?game= or pathname)
     if (window.__dz_startup_slug) {
       var s = window.__dz_startup_slug;
       window.__dz_startup_slug = null;
       return s;
     }
+    // Priority 2: ?game= query param (set by 404.html redirect)
+    try {
+      var qp = new URLSearchParams(window.location.search);
+      var gp = qp.get('game');
+      if (gp && SLUG_TO_SCREEN[gp]) return gp;
+    } catch(e) {}
+    // Priority 3: pathname (duelzone.online/chess direct visit)
     var parts = window.location.pathname.split('/').filter(Boolean);
-    // Find the last part that is a known slug
     for (var i = parts.length - 1; i >= 0; i--) {
       if (SLUG_TO_SCREEN[parts[i]]) return parts[i];
     }
@@ -8727,15 +8733,20 @@ window._dzRouter = (function () {
     function _doRoute() {
       if (_routed) return;
       _routed = true;
-      // Hide hub every time — defensive against game inits re-showing it
+      // Hide hub — defensive against game inits re-showing it
       var h = document.getElementById('screen-hub');
       if (h) { h.classList.add('hidden'); h.style.setProperty('display','none','important'); }
+      // Clean ?game= from URL so it looks nice (replaces state)
+      try {
+        var cleanPath = _fullPath(slug);
+        history.replaceState({ screenId: SLUG_TO_SCREEN[slug] || null }, '', cleanPath);
+      } catch(e) {}
       _routeFromSlug(slug);
-      // Re-show hub display after routing (so hub works again when user goes back)
+      // Re-allow hub display for when user goes back
       setTimeout(function() {
         var hub2 = document.getElementById('screen-hub');
         if (hub2) hub2.style.removeProperty('display');
-      }, 500);
+      }, 600);
     }
 
     // Hide hub immediately — before any game script re-shows it

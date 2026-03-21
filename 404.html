@@ -15,36 +15,37 @@
       var path  = window.location.pathname;
       var parts = path.split('/').filter(Boolean);
 
-      // Find game slug
+      // Find game slug — scan backwards
       var slug = null;
       for (var i = parts.length - 1; i >= 0; i--) {
         if (KNOWN.indexOf(parts[i]) !== -1) { slug = parts[i]; break; }
       }
 
-      // Find base
+      // Find repo base path
       var base = '/';
-      if (slug) {
-        var slugIdx = parts.indexOf(slug);
-        if (slugIdx > 0) base = '/' + parts.slice(0, slugIdx).join('/') + '/';
-      } else {
-        if (parts.length > 0) base = '/' + parts[0] + '/';
+      if (parts.length > 0) {
+        var slugIdx = slug ? parts.indexOf(slug) : parts.length;
+        base = '/' + parts.slice(0, slugIdx).join('/') + '/';
       }
 
-      // Save slug to sessionStorage
-      if (slug) {
-        try { sessionStorage.setItem('dz_gh_slug', slug); } catch(e) {}
+      // Build redirect URL — put game in query param (no sessionStorage needed)
+      var qs = slug ? ('?game=' + slug) : '';
+      // Keep any existing challenge params
+      var existing = window.location.search;
+      if (existing && slug) {
+        qs = qs + '&' + existing.slice(1);
+      } else if (existing && !slug) {
+        qs = existing;
       }
 
-      var qs   = window.location.search  || '';
-      var hash = window.location.hash    || '';
-      window.location.replace(window.location.origin + base + qs + hash);
+      window.location.replace(
+        window.location.origin + base + qs + (window.location.hash || '')
+      );
     })();
   </script>
 </head>
-<body style="background:#07080f;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0">
-  <div style="text-align:center;opacity:0.5">
-    <div style="font-size:2rem;margin-bottom:12px">🎮</div>
-    <div>Loading DuelZone…</div>
-  </div>
+<body style="background:#07080f;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:12px">
+  <div style="font-size:2.5rem">🎮</div>
+  <div style="opacity:0.5;font-size:0.9rem;letter-spacing:0.1em">LOADING DUELZONE…</div>
 </body>
 </html>

@@ -30,8 +30,8 @@
 <body>
 
   <!-- ── Early route guard ─────────────────────────────────────
-       1. If URL has a known game slug → hide hub immediately
-       2. If redirected via 404.html → read slug from sessionStorage
+       Reads ?game= param (set by 404.html) OR pathname slug
+       Hides hub IMMEDIATELY before any other script runs
   ──────────────────────────────────────────────────────────── -->
   <script>
   (function(){
@@ -41,28 +41,31 @@
       'reaction-duel','ludo','sudoku','carrom','minesweeper','bomberman',
       'space-dodge','star-catcher','tanks','territory','draw-and-guess'];
 
-    // Check sessionStorage first (set by 404.html redirect)
-    var ssSlug = sessionStorage.getItem('dz_gh_slug');
-    if (ssSlug && KNOWN.indexOf(ssSlug) !== -1) {
-      sessionStorage.removeItem('dz_gh_slug');
-      window.__dz_startup_slug = ssSlug;
-    }
-
-    // Also check direct URL pathname
-    var parts = window.location.pathname.split('/').filter(Boolean);
-    // For github.io/REPO/chess → parts = ['REPO','chess']
-    // For duelzone.online/chess  → parts = ['chess']
     var slug = null;
-    for (var i = parts.length - 1; i >= 0; i--) {
-      if (KNOWN.indexOf(parts[i]) !== -1) { slug = parts[i]; break; }
-    }
-    if (slug) window.__dz_startup_slug = slug;
 
-    // Hide hub immediately if we have a game to show
-    if (window.__dz_startup_slug) {
+    // Priority 1: ?game= query param (set by 404.html redirect — most reliable)
+    try {
+      var qp = new URLSearchParams(window.location.search);
+      var gp = qp.get('game');
+      if (gp && KNOWN.indexOf(gp) !== -1) slug = gp;
+    } catch(e) {}
+
+    // Priority 2: pathname (works on duelzone.online/chess directly)
+    if (!slug) {
+      var parts = window.location.pathname.split('/').filter(Boolean);
+      for (var i = parts.length - 1; i >= 0; i--) {
+        if (KNOWN.indexOf(parts[i]) !== -1) { slug = parts[i]; break; }
+      }
+    }
+
+    if (slug) {
+      window.__dz_startup_slug = slug;
+      // Hide hub RIGHT NOW — inline, synchronous, no waiting
+      document.documentElement.style.cssText += ';--dz-routing:1';
+      // Also hide on DOMContentLoaded (double safety)
       document.addEventListener('DOMContentLoaded', function(){
         var hub = document.getElementById('screen-hub');
-        if (hub) hub.classList.add('hidden');
+        if (hub) { hub.classList.add('hidden'); hub.style.setProperty('display','none','important'); }
       });
     }
   })();
