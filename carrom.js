@@ -681,7 +681,7 @@
     $('carrom-result-title').textContent=title;
     $('carrom-result-detail').textContent=`${players[0].label}: ${s0} pts  ·  ${players[1].label}: ${s1} pts`;
     $('carrom-result').classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Carrom', slug:'carrom', winner:title, detail:`${players[0].label}: ${s0} pts  ·  ${players[1].label}: ${s1} pts`, accent:'#ff9100', icon:'🪙' });
+    if (window.DZShare) DZShare.setResult({ game:'Carrom', slug:'carrom', winner:title, detail:`${players[0].label}: ${s0} pts  ·  ${players[1].label}: ${s1} pts`, accent:'#ff9100', icon:'🪙', score:Math.max(s0,s1), diff:'', isWin:s0>s1 });
   }
 
   /* ══════════════════════════════════════════════════════════

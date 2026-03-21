@@ -747,7 +747,7 @@
       ? `${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`
       : 'Too many mistakes! Try again.';
     res.classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Sudoku', slug:'sudoku', winner:won?'Puzzle Solved! 🏆':'Game Over 💀', detail:won?`${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`:'Too many mistakes!', accent:'#6c63ff', icon:'🔢' });
+    if (window.DZShare) DZShare.setResult({ game:'Sudoku', slug:'sudoku', winner:won?'Puzzle Solved! 🏆':'Game Over 💀', detail:won?`${diff.toUpperCase()} · ${fmt(timerSec)} · ${errors} mistake${errors!==1?'s':''}`:'Too many mistakes!', accent:'#6c63ff', icon:'🔢', score:timerSec, diff:diff, isWin:won });
   }
 
   /* ══════════════════════════════════════════════════════════

@@ -1164,7 +1164,7 @@ function tttPlace(idx, mark){
     tttBoardEl.classList.add('disabled'); tttActive=false;
     SoundManager.tttWinLine();
     setTimeout(function(){ SoundManager.win(); }, 200);
-    if (window.DZShare) DZShare.setResult({ game:'Tic Tac Toe', slug:'tic-tac-toe', winner:tttNames[mark]+' Wins! 🏆', detail:'Classic 3×3 battle', accent:'#00e5ff', icon:'✖' });
+    if (window.DZShare) DZShare.setResult({ game:'Tic Tac Toe', slug:'tic-tac-toe', winner:tttNames[mark]+' Wins! 🏆', detail:'Difficulty: '+tttDifficulty, accent:'#00e5ff', icon:'✖', score:tttScores[mark], diff:tttDifficulty, isWin:true });
     return true;
   }
   if(tttFull()){
@@ -1359,7 +1359,7 @@ function rpsRevealChoices(p1c, p2c) {
     setTimeout(function() {
       if (rpsScores.p1 >= winsNeeded) SoundManager.win(); else SoundManager.lose();
     }, 300);
-    if (window.DZShare) DZShare.setResult({ game:'Rock Paper Scissors', slug:'rock-paper-scissors', winner:matchWinner+' wins the match! 🏆', detail:'Best of '+rpsBestOf+' · '+rpsScores.p1+' – '+rpsScores.p2, accent:'#00e676', icon:'✊' });
+    if (window.DZShare) DZShare.setResult({ game:'Rock Paper Scissors', slug:'rock-paper-scissors', winner:matchWinner+' wins the match! 🏆', detail:'Best of '+rpsBestOf+' · '+rpsScores.p1+' – '+rpsScores.p2, accent:'#00e676', icon:'✊', score:Math.max(rpsScores.p1,rpsScores.p2), diff:'best-of-'+rpsBestOf, isWin:true });
     return;
   }
   if (winner === 'draw') setTimeout(function() { SoundManager.draw(); }, 300);
@@ -1615,7 +1615,7 @@ function tapRegisterHit(player) {
     var winnerName = player === 'p1' ? 'Player 1' : (tapMode === 'pve' ? 'Bot' : 'Player 2');
     tapWinTextEl.textContent = winnerName + ' Wins! 🎉';
     tapWinOverlay.classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Tap Battle', slug:'tap-battle', winner:winnerName+' Wins! 🎉', detail:'First to 100 taps', accent:'#f50057', icon:'👊' });
+    if (window.DZShare) DZShare.setResult({ game:'Tap Battle', slug:'tap-battle', winner:winnerName+' Wins! 🎉', detail:'First to 100 taps', accent:'#f50057', icon:'👊', score:100, diff:'speed', isWin:true });
   }
 }
 
@@ -2000,7 +2000,7 @@ function d2048ShowWin(name, sub) {
   d2048WinOverlay.classList.remove('hidden');
   SoundManager.d2048GameOver();
   setTimeout(function() { SoundManager.win(); }, 400);
-  if (window.DZShare) DZShare.setResult({ game:'2048 Duel', slug:'2048-duel', winner:name+' Wins! 🏆', detail:sub, accent:'#aa00ff', icon:'🔢' });
+  if (window.DZShare) DZShare.setResult({ game:'2048 Duel', slug:'2048-duel', winner:name+' Wins! 🏆', detail:sub, accent:'#aa00ff', icon:'🔢', score:0, diff:'', isWin:true });
 }
 
 // ── Turn UI ────────────────────────────────────────────────────
@@ -2639,7 +2639,7 @@ function cricShowResult() {
   if (window.DZShare) {
     var cricWinner = tie ? 'It\'s a Tie!' : (p1s > p2s ? p1n + ' Win'+(cricIsPvP?'s':'')+'!' : p2n + ' Wins!');
     var cricDetail = p1n+': '+p1s+' runs  ·  '+p2n+': '+p2s+' runs';
-    DZShare.setResult({ game:'Hand Cricket', slug:'hand-cricket', winner:cricWinner, detail:cricDetail, accent:'#76ff03', icon:'🏏' });
+    DZShare.setResult({ game:'Hand Cricket', slug:'hand-cricket', winner:cricWinner, detail:cricDetail, accent:'#76ff03', icon:'🏏', score:Math.max(p1s,p2s), diff:'', isWin:p1s>p2s });
   }
 }
 
@@ -3751,7 +3751,7 @@ function c4EndGame(winner, winPairs) {
     setTimeout(function() {
       if (winner === C4_P1) SoundManager.win(); else SoundManager.lose();
     }, 300);
-    if (window.DZShare) DZShare.setResult({ game:'Connect Four', slug:'connect-four', winner:wName+' Wins! 🏆', detail:'Scores: P1 '+c4Scores[C4_P1]+' · P2 '+c4Scores[C4_P2], accent:'#ff6d00', icon:'🔴' });
+    if (window.DZShare) DZShare.setResult({ game:'Connect Four', slug:'connect-four', winner:wName+' Wins! 🏆', detail:'Scores: P1 '+c4Scores[C4_P1]+' · P2 '+c4Scores[C4_P2], accent:'#ff6d00', icon:'🔴', score:c4Scores[winner], diff:c4GameMode==='pve'?'bot':'pvp', isWin:winner===C4_P1 });
   } else {
     c4SetStatus("It's a Draw!", 'draw');
     SoundManager.draw();
@@ -5114,7 +5114,7 @@ function pbShowResult(won, elapsed, reason) {
                                             'Well done, the code is yours.';
     card.classList.add('pb-result-card--win');
     pbSpawnParticles();
-    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Code Cracked! 🏆', detail:'Cracked in '+pb.attempts+' attempt'+(pb.attempts!==1?'s':'')+' · Score: '+pb.score, accent:'#00ff88', icon:'🔐' });
+    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Code Cracked! 🏆', detail:'Cracked in '+pb.attempts+' attempt'+(pb.attempts!==1?'s':'')+' · Score: '+pb.score, accent:'#00ff88', icon:'🔐', score:pb.score, diff:pb.difficulty||'', isWin:true });
   } else {
     icon.textContent  = '💥';
     title.textContent = 'BREACH FAILED';
@@ -5122,7 +5122,7 @@ function pbShowResult(won, elapsed, reason) {
     sub.textContent   = (reason || 'Time ran out!') + ' · The code was:';
     card.classList.remove('pb-result-card--win');
     SoundManager.lose();
-    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Breach Failed 💥', detail:'The code was: '+pb.secret.join(''), accent:'#00ff88', icon:'🔐' });
+    if (window.DZShare) DZShare.setResult({ game:'Password Breaker', slug:'password-breaker', winner:'Breach Failed 💥', detail:'The code was: '+pb.secret.join(''), accent:'#00ff88', icon:'🔐', score:0, diff:pb.difficulty||'', isWin:false });
   }
 
   // Code reveal tiles
@@ -5674,7 +5674,7 @@ function mfdShowResult() {
   if (rt) rt.textContent = title;
   if (rs) rs.textContent = 'P1: ' + s1 + '  ·  ' + p2name + ': ' + s2;
   if (res) res.classList.remove('hidden');
-  if (window.DZShare) DZShare.setResult({ game:'Memory Flip Duel', slug:'memory-flip', winner:title, detail:'P1: '+s1+' pairs  ·  '+p2name+': '+s2+' pairs', accent:'#c084fc', icon:'🃏' });
+  if (window.DZShare) DZShare.setResult({ game:'Memory Flip Duel', slug:'memory-flip', winner:title, detail:'P1: '+s1+' pairs  ·  '+p2name+': '+s2+' pairs', accent:'#c084fc', icon:'🃏', score:Math.max(s1,s2), diff:'', isWin:s1>s2 });
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -7551,7 +7551,7 @@ console.log('[DuelZone] Global Systems (GameLoader + GlobalBotEngine) v1.0 loade
     if (cddResultTitle)  cddResultTitle.textContent  = title;
     if (cddResultScores) cddResultScores.textContent = detail;
     if (cddResult)       cddResult.classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Connect Dots Duel', slug:'connect-dots', winner:title, detail:detail, accent:'#ff9100', icon:'🔵' });
+    if (window.DZShare) DZShare.setResult({ game:'Connect Dots Duel', slug:'connect-dots', winner:title, detail:detail, accent:'#ff9100', icon:'🔵', score:0, diff:'', isWin:true });
   }
 
   function cddHideResult() {
@@ -8751,17 +8751,35 @@ window._dzRouter = (function () {
 //   DZShare.setResult({ game, slug, winner, detail, accent, icon });
 //   Then the share button in HTML calls DZShare.openModal()
 // ═══════════════════════════════════════════════════════════════
+
 var DZShare = (function () {
   'use strict';
 
-  // ── Current result ────────────────────────────────────────
-  var _r = { game:'DuelZone', slug:'', winner:'', detail:'', accent:'#00e5ff', icon:'🎮' };
-  var _dataURL = null;   // cached PNG data URL
+  // ── BASE DOMAIN ───────────────────────────────────────────
+  var BASE = 'https://duelzone.online';
 
-  // ── Card dimensions (16:9, looks great everywhere) ───────
-  var CW = 800, CH = 450;
+  // ── Current result data ───────────────────────────────────
+  var _r = {
+    game:'DuelZone', slug:'', winner:'', detail:'',
+    accent:'#00e5ff', icon:'🎮', score:0, diff:'', isWin:true
+  };
+  var _dataURL = null;
 
-  // ── setResult: called by every game when it ends ─────────
+  // ── Challenger info (set when page loaded via challenge URL) ──
+  var _challenge = (function() {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      return {
+        name:  p.get('challenge') || '',
+        score: parseInt(p.get('score') || '0', 10) || 0,
+        diff:  p.get('diff')  || '',
+        game:  p.get('game')  || '',
+        slug:  p.get('slug')  || ''
+      };
+    } catch(e) { return {name:'',score:0,diff:'',game:'',slug:''}; }
+  })();
+
+  // ── Set result from game ──────────────────────────────────
   function setResult(data) {
     _r.game   = data.game   || 'DuelZone';
     _r.slug   = data.slug   || '';
@@ -8769,132 +8787,209 @@ var DZShare = (function () {
     _r.detail = data.detail || '';
     _r.accent = data.accent || '#00e5ff';
     _r.icon   = data.icon   || '🎮';
+    _r.score  = data.score  || 0;
+    _r.diff   = data.diff   || '';
+    _r.isWin  = data.isWin !== false;
     _dataURL  = null;
-  }
-
-  // ── Draw card on an off-screen canvas ────────────────────
-  function _generateCard(cb) {
-    try {
-      var cv = document.createElement('canvas');
-      cv.width = CW; cv.height = CH;
-      var c = cv.getContext('2d');
-
-      // ── Background ──
-      c.fillStyle = '#07080f';
-      c.fillRect(0, 0, CW, CH);
-
-      // Grid overlay
-      c.strokeStyle = 'rgba(255,255,255,0.04)';
-      c.lineWidth = 1;
-      for (var gx = 0; gx < CW; gx += 40) { c.beginPath(); c.moveTo(gx,0); c.lineTo(gx,CH); c.stroke(); }
-      for (var gy = 0; gy < CH; gy += 40) { c.beginPath(); c.moveTo(0,gy); c.lineTo(CW,gy); c.stroke(); }
-
-      // Top accent bar
-      var tg = c.createLinearGradient(0,0,CW,0);
-      tg.addColorStop(0, _r.accent); tg.addColorStop(0.6, _r.accent+'88'); tg.addColorStop(1,'transparent');
-      c.fillStyle = tg; c.fillRect(0,0,CW,6);
-
-      // Bottom accent bar (reverse)
-      var bg2 = c.createLinearGradient(0,0,CW,0);
-      bg2.addColorStop(0,'transparent'); bg2.addColorStop(0.4,_r.accent+'88'); bg2.addColorStop(1,_r.accent);
-      c.fillStyle = bg2; c.fillRect(0,CH-6,CW,6);
-
-      // Left glow strip
-      var lg = c.createLinearGradient(0,0,0,CH);
-      lg.addColorStop(0,_r.accent+'00'); lg.addColorStop(0.5,_r.accent+'44'); lg.addColorStop(1,_r.accent+'00');
-      c.fillStyle = lg; c.fillRect(0,0,4,CH);
-
-      // ── Branding ──
-      c.font = 'bold 15px Arial, sans-serif';
-      c.fillStyle = 'rgba(255,255,255,0.30)';
-      c.textAlign = 'left'; c.textBaseline = 'top';
-      c.fillText('DUELZONE', 30, 24);
-
-      // Right side URL
-      c.font = '13px Arial, sans-serif';
-      c.fillStyle = 'rgba(255,255,255,0.22)';
-      c.textAlign = 'right';
-      c.fillText('duelzone.online' + (_r.slug ? '/' + _r.slug : ''), CW - 30, 24);
-
-      // ── Game icon ──
-      c.font = '80px serif';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(_r.icon, CW / 2, 130);
-
-      // ── Game name ──
-      c.font = 'bold 36px Arial, sans-serif';
-      c.fillStyle = _r.accent;
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(_r.game.toUpperCase(), CW / 2, 200);
-
-      // ── Accent underline under game name ──
-      var uw = 160;
-      var uGrad = c.createLinearGradient(CW/2-uw/2, 0, CW/2+uw/2, 0);
-      uGrad.addColorStop(0,'transparent'); uGrad.addColorStop(0.5,_r.accent); uGrad.addColorStop(1,'transparent');
-      c.strokeStyle = uGrad; c.lineWidth = 2;
-      c.beginPath(); c.moveTo(CW/2-uw/2, 218); c.lineTo(CW/2+uw/2, 218); c.stroke();
-
-      // ── Winner ──
-      var winText = _r.winner.length > 26 ? _r.winner.slice(0,26)+'…' : _r.winner;
-      c.font = 'bold 44px Arial, sans-serif';
-      c.fillStyle = '#ffffff';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(winText, CW/2, 285);
-
-      // ── Detail ──
-      if (_r.detail) {
-        var detText = _r.detail.length > 55 ? _r.detail.slice(0,55)+'…' : _r.detail;
-        c.font = '20px Arial, sans-serif';
-        c.fillStyle = 'rgba(255,255,255,0.50)';
-        c.textAlign = 'center'; c.textBaseline = 'middle';
-        c.fillText(detText, CW/2, 330);
+    // Check if this beats a challenge
+    if (_r.isWin && _challenge.name && _r.slug === _challenge.slug) {
+      var beats = false;
+      // Lower score = better (time/moves): minesweeper, sudoku, chess
+      var lowerBetter = ['minesweeper','sudoku','chess'];
+      if (lowerBetter.indexOf(_r.slug) !== -1) {
+        beats = _r.score > 0 && _challenge.score > 0 && _r.score < _challenge.score;
+      } else {
+        beats = _r.score > _challenge.score;
       }
-
-      // ── Divider ──
-      var divGrad = c.createLinearGradient(60, 0, CW-60, 0);
-      divGrad.addColorStop(0,'transparent'); divGrad.addColorStop(0.5,'rgba(255,255,255,0.12)'); divGrad.addColorStop(1,'transparent');
-      c.strokeStyle = divGrad; c.lineWidth = 1;
-      c.beginPath(); c.moveTo(60,363); c.lineTo(CW-60,363); c.stroke();
-
-      // ── Bottom tagline ──
-      c.font = '14px Arial, sans-serif';
-      c.fillStyle = 'rgba(255,255,255,0.22)';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText('Play free at duelzone.online — No download needed', CW/2, 400);
-
-      _dataURL = cv.toDataURL('image/png');
-      if (cb) cb(_dataURL);
-    } catch (err) {
-      if (cb) cb(null);
+      if (beats) {
+        setTimeout(function(){ _showBeatPopup(); }, 1200);
+      }
     }
   }
 
-  // ── Open the share modal ──────────────────────────────────
+  // ── Generate share card image ────────────────────────────
+  function _generateCard(playerName, cb) {
+    try {
+      var cv = document.createElement('canvas');
+      cv.width = 800; cv.height = 450;
+      var c = cv.getContext('2d');
+      var acc = _r.accent;
+
+      // Background
+      c.fillStyle = '#07080f';
+      c.fillRect(0, 0, 800, 450);
+
+      // Grid lines
+      c.strokeStyle = 'rgba(255,255,255,0.04)';
+      c.lineWidth = 1;
+      for (var gx=0;gx<800;gx+=40){c.beginPath();c.moveTo(gx,0);c.lineTo(gx,450);c.stroke();}
+      for (var gy=0;gy<450;gy+=40){c.beginPath();c.moveTo(0,gy);c.lineTo(800,gy);c.stroke();}
+
+      // Top accent bar
+      var tg = c.createLinearGradient(0,0,800,0);
+      tg.addColorStop(0,acc); tg.addColorStop(0.7,acc+'66'); tg.addColorStop(1,'transparent');
+      c.fillStyle=tg; c.fillRect(0,0,800,6);
+
+      // Bottom accent bar
+      var bg2 = c.createLinearGradient(0,0,800,0);
+      bg2.addColorStop(0,'transparent'); bg2.addColorStop(0.3,acc+'66'); bg2.addColorStop(1,acc);
+      c.fillStyle=bg2; c.fillRect(0,444,800,6);
+
+      // Left glow
+      var lg = c.createLinearGradient(0,0,0,450);
+      lg.addColorStop(0,acc+'00'); lg.addColorStop(0.5,acc+'33'); lg.addColorStop(1,acc+'00');
+      c.fillStyle=lg; c.fillRect(0,0,4,450);
+
+      // DZ logo area top-left
+      c.fillStyle = acc;
+      c.fillRect(28,22,4,28);
+      c.font = 'bold 14px Arial,sans-serif';
+      c.fillStyle = '#fff';
+      c.textAlign = 'left'; c.textBaseline = 'top';
+      c.fillText('DuelZone', 40, 24);
+      c.font = '11px Arial,sans-serif';
+      c.fillStyle = 'rgba(255,255,255,0.3)';
+      c.fillText('duelzone.online', 40, 40);
+
+      // Game icon
+      c.font = '72px serif';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(_r.icon, 400, 128);
+
+      // Game name
+      c.font = 'bold 34px Arial,sans-serif';
+      c.fillStyle = acc;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(_r.game.toUpperCase(), 400, 195);
+
+      // Accent underline
+      var ug = c.createLinearGradient(300,0,500,0);
+      ug.addColorStop(0,'transparent'); ug.addColorStop(0.5,acc); ug.addColorStop(1,'transparent');
+      c.strokeStyle=ug; c.lineWidth=2;
+      c.beginPath(); c.moveTo(300,212); c.lineTo(500,212); c.stroke();
+
+      // Winner / player name
+      var winLine = playerName
+        ? (playerName + ' ' + (_r.isWin ? 'Wins! 🏆' : 'played'))
+        : _r.winner;
+      if (winLine.length > 28) winLine = winLine.slice(0,28)+'…';
+      c.font = 'bold 40px Arial,sans-serif';
+      c.fillStyle = '#fff';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(winLine, 400, 272);
+
+      // Detail / score
+      var detLine = _r.detail;
+      if (detLine.length > 58) detLine = detLine.slice(0,58)+'…';
+      c.font = '18px Arial,sans-serif';
+      c.fillStyle = 'rgba(255,255,255,0.50)';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(detLine, 400, 316);
+
+      // Challenge message
+      var msg = playerName
+        ? 'I beat this bot on ' + _r.game + '! Can you beat my score? 👇'
+        : 'Can you beat this score? Try it on DuelZone! 👇';
+      c.font = 'italic 16px Arial,sans-serif';
+      c.fillStyle = acc + 'cc';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(msg, 400, 356);
+
+      // Divider
+      var dg = c.createLinearGradient(60,0,740,0);
+      dg.addColorStop(0,'transparent'); dg.addColorStop(0.5,'rgba(255,255,255,0.10)'); dg.addColorStop(1,'transparent');
+      c.strokeStyle=dg; c.lineWidth=1;
+      c.beginPath(); c.moveTo(60,374); c.lineTo(740,374); c.stroke();
+
+      // URL footer
+      var urlText = _buildChallengeURL(playerName);
+      if (urlText.length > 65) urlText = urlText.slice(0,65)+'…';
+      c.font = '13px Arial,sans-serif';
+      c.fillStyle = 'rgba(255,255,255,0.22)';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(urlText, 400, 408);
+
+      _dataURL = cv.toDataURL('image/png');
+      cb(_dataURL);
+    } catch(e) { cb(null); }
+  }
+
+  // ── Build challenge URL ───────────────────────────────────
+  function _buildChallengeURL(playerName) {
+    var url = BASE + '/' + _r.slug;
+    var params = [];
+    if (playerName && playerName.trim()) params.push('challenge=' + encodeURIComponent(playerName.trim()));
+    if (_r.score)  params.push('score=' + _r.score);
+    if (_r.diff)   params.push('diff='  + encodeURIComponent(_r.diff));
+    if (_r.slug)   params.push('slug='  + _r.slug);
+    if (params.length) url += '?' + params.join('&');
+    return url;
+  }
+
+  // ── Build WhatsApp message ───────────────────────────────
+  function _buildWAText(playerName) {
+    var name   = playerName && playerName.trim() ? playerName.trim() : 'Someone';
+    var url    = _buildChallengeURL(playerName);
+    var line1  = '🏆 ' + name + ' just beat the bot in ' + _r.game + '!';
+    var line2  = _r.detail ? ('📊 ' + _r.detail) : '';
+    var line3  = '💬 "Can YOU beat my score? Try it out 👇"';
+    var line4  = url;
+    return encodeURIComponent([line1, line2, line3, line4].filter(Boolean).join('\n'));
+  }
+
+  // ── Open share modal ─────────────────────────────────────
   function openModal() {
     var modal    = document.getElementById('dz-share-modal');
     var preview  = document.getElementById('dz-share-preview');
     var backdrop = document.getElementById('dz-share-backdrop');
-    if (!modal) { console.warn('[DZShare] modal not found'); return; }
+    if (!modal) return;
 
     if (preview) preview.innerHTML = '<div class="dz-share-spinner"></div>';
     if (backdrop) backdrop.classList.add('active');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 
-    _generateCard(function(dataURL) {
+    // Populate name hint from challenge data if returning challenger
+    var nameInput = document.getElementById('dz-share-name');
+    if (nameInput && !nameInput.value) {
+      // try localStorage
+      var saved = localStorage.getItem('dz_player_name');
+      if (saved) nameInput.value = saved;
+    }
+
+    // Draw card with current name
+    var name = nameInput ? nameInput.value.trim() : '';
+    _generateCard(name, function(url) {
       if (!preview) return;
-      if (!dataURL) {
-        preview.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:0.8rem;padding:20px;text-align:center;">Preview unavailable</div>';
-        return;
-      }
+      if (!url) { preview.innerHTML = '<div style="color:rgba(255,255,255,0.4);padding:20px;text-align:center;font-size:0.8rem">Preview unavailable</div>'; return; }
       var img = document.createElement('img');
-      img.src = dataURL;
+      img.src = url;
       img.style.cssText = 'width:100%;border-radius:8px;display:block;';
       preview.innerHTML = '';
       preview.appendChild(img);
     });
   }
 
+  // ── Regenerate card when name changes ────────────────────
+  function _refreshCard() {
+    var preview   = document.getElementById('dz-share-preview');
+    var nameInput = document.getElementById('dz-share-name');
+    if (!preview || !nameInput) return;
+    var name = nameInput.value.trim();
+    if (name) localStorage.setItem('dz_player_name', name);
+    _dataURL = null;
+    preview.innerHTML = '<div class="dz-share-spinner"></div>';
+    _generateCard(name, function(url) {
+      if (!url) return;
+      var img = document.createElement('img');
+      img.src = url;
+      img.style.cssText = 'width:100%;border-radius:8px;display:block;';
+      preview.innerHTML = '';
+      preview.appendChild(img);
+    });
+  }
+
+  // ── Close modal ───────────────────────────────────────────
   function closeModal() {
     var modal    = document.getElementById('dz-share-modal');
     var backdrop = document.getElementById('dz-share-backdrop');
@@ -8903,38 +8998,64 @@ var DZShare = (function () {
     document.body.style.overflow = '';
   }
 
-  // ── Share text builder ────────────────────────────────────
-  function _text(platform) {
-    var base  = 'https://duelzone.online' + (_r.slug ? '/' + _r.slug : '');
-    var line1 = '\uD83C\uDFC6 ' + (_r.winner || ('Play ' + _r.game + ' on DuelZone!'));
-    var line2 = _r.detail ? ('\n' + _r.detail) : '';
-    var line3 = '\nThink you can beat it? \uD83D\uDC47\n' + base;
-    var hash  = platform === 'twitter' ? '\n#DuelZone #gaming' : '';
-    return encodeURIComponent(line1 + line2 + line3 + hash);
+  // ── Share actions ─────────────────────────────────────────
+  function _getName() {
+    var inp = document.getElementById('dz-share-name');
+    return inp ? inp.value.trim() : '';
   }
 
-  // ── Share actions ─────────────────────────────────────────
-  function _whatsapp() { window.open('https://wa.me/?text=' + _text('whatsapp'), '_blank', 'noopener'); }
-  function _twitter()  { window.open('https://twitter.com/intent/tweet?text=' + _text('twitter'), '_blank', 'noopener'); }
+  function _shareWhatsApp() {
+    window.open('https://wa.me/?text=' + _buildWAText(_getName()), '_blank', 'noopener');
+  }
+
+  function _shareInstagram() {
+    // Instagram can't receive URLs from browser — save image + show caption to copy
+    _saveImage();
+    var box = document.getElementById('dz-share-ig-caption');
+    if (box) {
+      var name = _getName() || 'Someone';
+      box.textContent = '🏆 ' + name + ' beat the bot in ' + _r.game + '!\n' +
+                        (_r.detail ? '📊 ' + _r.detail + '\n' : '') +
+                        '👇 ' + _buildChallengeURL(_getName());
+      var wrap = document.getElementById('dz-share-ig-wrap');
+      if (wrap) wrap.style.display = 'block';
+    }
+  }
+
+  function _copyCaption() {
+    var box = document.getElementById('dz-share-ig-caption');
+    var btn = document.getElementById('dz-share-ig-copy');
+    if (!box) return;
+    var text = box.textContent;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(function(){
+        if (btn) { btn.textContent='✅ Copied!'; setTimeout(function(){btn.textContent='📋 Copy';},2000); }
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText='position:fixed;left:-9999px;opacity:0;';
+      document.body.appendChild(ta); ta.select();
+      try{document.execCommand('copy');}catch(e){}
+      document.body.removeChild(ta);
+      if (btn) { btn.textContent='✅ Copied!'; setTimeout(function(){btn.textContent='📋 Copy';},2000); }
+    }
+  }
 
   function _copyLink() {
-    var link = 'https://duelzone.online' + (_r.slug ? '/' + _r.slug : '');
+    var link = _buildChallengeURL(_getName());
     var btn  = document.getElementById('dz-share-copy-btn');
-    function _done() {
-      if (btn) { btn.textContent = '✅ Copied!'; setTimeout(function(){ btn.textContent = '🔗 Copy Link'; }, 2000); }
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(link).then(_done).catch(function() {
-        _fallbackCopy(link); _done();
-      });
-    } else { _fallbackCopy(link); _done(); }
+    var done = function() {
+      if (btn) { btn.textContent='✅ Copied!'; setTimeout(function(){btn.textContent='🔗 Copy Link';},2000); }
+    };
+    if (navigator.clipboard) { navigator.clipboard.writeText(link).then(done).catch(function(){ _fbCopy(link); done(); }); }
+    else { _fbCopy(link); done(); }
   }
 
-  function _fallbackCopy(text) {
-    var ta = document.createElement('textarea');
-    ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;opacity:0;';
+  function _fbCopy(text) {
+    var ta=document.createElement('textarea'); ta.value=text;
+    ta.style.cssText='position:fixed;left:-9999px;opacity:0;';
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); } catch(e){}
+    try{document.execCommand('copy');}catch(e){}
     document.body.removeChild(ta);
   }
 
@@ -8942,58 +9063,114 @@ var DZShare = (function () {
     var doSave = function(url) {
       if (!url) return;
       var a = document.createElement('a');
-      a.href = url;
-      a.download = 'duelzone-' + (_r.slug || 'result') + '.png';
+      a.href = url; a.download = 'duelzone-' + (_r.slug||'result') + '.png';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     };
     if (_dataURL) { doSave(_dataURL); }
-    else { _generateCard(doSave); }
+    else { _generateCard(_getName(), doSave); }
   }
 
-  // ── Native share (mobile) — uses Web Share API if available ──
-  function _nativeShare() {
-    var text = '\uD83C\uDFC6 ' + (_r.winner || _r.game) +
-               (_r.detail ? '\n' + _r.detail : '') +
-               '\nPlay free: https://duelzone.online' + (_r.slug ? '/' + _r.slug : '');
-    if (navigator.share) {
-      navigator.share({ title: _r.game + ' — DuelZone', text: text })
-        .catch(function(){});
-    } else {
-      _whatsapp();
+  // ── Beat-score popup ──────────────────────────────────────
+  function _showBeatPopup() {
+    var pop = document.getElementById('dz-beat-popup');
+    if (!pop) {
+      pop = document.createElement('div');
+      pop.id = 'dz-beat-popup';
+      pop.innerHTML =
+        '<div class="dz-beat-inner">' +
+          '<div class="dz-beat-emoji">🎉</div>' +
+          '<div class="dz-beat-title">You beat <span id="dz-beat-name"></span>\'s score!</div>' +
+          '<div class="dz-beat-detail" id="dz-beat-detail"></div>' +
+          '<div class="dz-beat-btns">' +
+            '<button class="dz-beat-share-btn" id="dz-beat-share">📤 Share it back!</button>' +
+            '<button class="dz-beat-close-btn" id="dz-beat-close">Maybe later</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(pop);
+      document.getElementById('dz-beat-share').addEventListener('click', function(){
+        pop.classList.remove('active');
+        openModal();
+      });
+      document.getElementById('dz-beat-close').addEventListener('click', function(){
+        pop.classList.remove('active');
+      });
     }
+    var nameEl = document.getElementById('dz-beat-name');
+    var detEl  = document.getElementById('dz-beat-detail');
+    if (nameEl) nameEl.textContent = _challenge.name;
+    if (detEl)  detEl.textContent  = _r.detail;
+    pop.classList.add('active');
   }
 
-  // ── Wire buttons ──────────────────────────────────────────
+  // ── Show challenge banner when page opens via challenge link ──
+  function _showChallengeBanner() {
+    if (!_challenge.name || !_challenge.slug) return;
+    var banner = document.getElementById('dz-challenge-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'dz-challenge-banner';
+      banner.innerHTML =
+        '<span class="dz-cb-icon">🏆</span>' +
+        '<span class="dz-cb-text">Beat <strong id="dz-cb-name"></strong>\'s score of <strong id="dz-cb-score"></strong> in <strong id="dz-cb-game"></strong>!</span>' +
+        '<button class="dz-cb-close" id="dz-cb-close">✕</button>';
+      document.body.appendChild(banner);
+      document.getElementById('dz-cb-close').addEventListener('click', function(){
+        banner.classList.remove('active');
+      });
+    }
+    var nameEl  = document.getElementById('dz-cb-name');
+    var scoreEl = document.getElementById('dz-cb-score');
+    var gameEl  = document.getElementById('dz-cb-game');
+    if (nameEl)  nameEl.textContent  = _challenge.name;
+    if (scoreEl) scoreEl.textContent = _challenge.score;
+    if (gameEl)  gameEl.textContent  = _challenge.game || _challenge.slug;
+    setTimeout(function(){ banner.classList.add('active'); }, 1500);
+  }
+
+  // ── Wire modal buttons ────────────────────────────────────
   function _wire() {
     function on(id, fn) {
       var el = document.getElementById(id);
-      if (el && !el.__dzShareWired) { el.__dzShareWired = true; el.addEventListener('click', fn); }
+      if (el && !el.__dzw) { el.__dzw = true; el.addEventListener('click', fn); }
     }
     on('dz-share-close',    closeModal);
-    on('dz-share-wa-btn',   _whatsapp);
-    on('dz-share-tw-btn',   _twitter);
+    on('dz-share-wa-btn',   _shareWhatsApp);
+    on('dz-share-ig-btn',   _shareInstagram);
     on('dz-share-copy-btn', _copyLink);
     on('dz-share-save-btn', _saveImage);
-    on('dz-share-native-btn', _nativeShare);
+    on('dz-share-ig-copy',  _copyCaption);
 
     var bd = document.getElementById('dz-share-backdrop');
-    if (bd && !bd.__dzShareWired) { bd.__dzShareWired = true; bd.addEventListener('click', closeModal); }
+    if (bd && !bd.__dzw) { bd.__dzw=true; bd.addEventListener('click', closeModal); }
 
-    // Escape key closes
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        var m = document.getElementById('dz-share-modal');
-        if (m && m.classList.contains('active')) closeModal();
+    // Name input — regenerate card on change (debounced)
+    var nameInp = document.getElementById('dz-share-name');
+    if (nameInp && !nameInp.__dzw) {
+      nameInp.__dzw = true;
+      var _t;
+      nameInp.addEventListener('input', function(){
+        clearTimeout(_t);
+        _t = setTimeout(_refreshCard, 600);
+      });
+    }
+
+    document.addEventListener('keydown', function(e){
+      if (e.key==='Escape') {
+        var m=document.getElementById('dz-share-modal');
+        if (m&&m.classList.contains('active')) closeModal();
       }
     });
+
+    // Show challenge banner if opened via challenge link
+    _showChallengeBanner();
   }
 
-  if (document.readyState === 'loading') {
+  if (document.readyState==='loading') {
     document.addEventListener('DOMContentLoaded', _wire);
   } else {
     _wire();
   }
 
-  return { setResult: setResult, openModal: openModal, closeModal: closeModal };
+  return { setResult:setResult, openModal:openModal, closeModal:closeModal, getChallenge: function(){ return _challenge; } };
 
 })();

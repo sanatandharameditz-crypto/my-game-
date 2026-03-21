@@ -813,7 +813,7 @@ var bs = (function () {
     if (window.DZShare) {
       var bsWinnerText = winner === 'player1' ? (state.mode==='pvp'?'Player 1 Wins! 🏆':'Victory! 🏆') : winner === 'player2' ? 'Player 2 Wins! 🏆' : 'Defeated 💀';
       var bsDetail     = winner === 'player1' ? (state.mode==='pvp'?"Player 1 sunk Player 2's fleet!":'All enemy ships sunk!') : winner === 'player2' ? "Player 2 sunk Player 1's fleet!" : 'The AI sunk all your ships.';
-      DZShare.setResult({ game:'Battleship', slug:'battleship', winner:bsWinnerText, detail:bsDetail, accent:'#06b6d4', icon:'⚓' });
+      DZShare.setResult({ game:'Battleship', slug:'battleship', winner:bsWinnerText, detail:bsDetail, accent:'#06b6d4', icon:'⚓', score:0, diff:state&&state.mode?state.mode:'', isWin:winner==='player1' });
     }
 
     // Reveal all enemy ships on the attack board

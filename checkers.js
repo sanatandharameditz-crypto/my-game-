@@ -724,7 +724,7 @@ var ck = (function () {
         SoundManager.lose && SoundManager.lose();
       }
     }
-    if (window.DZShare) DZShare.setResult({ game:'Checkers', slug:'checkers', winner:title.textContent, detail:detail.textContent, accent:'#e85d04', icon:'⚫' });
+    if (window.DZShare) DZShare.setResult({ game:'Checkers', slug:'checkers', winner:title.textContent, detail:detail.textContent, accent:'#e85d04', icon:'⚫', score:0, diff:state&&state.gameMode?state.gameMode:'', isWin:isP1Win });
 
     panel.classList.remove('ck-hidden');
     ckAnimateResult(isP1Win || state.gameMode === 'pvp');

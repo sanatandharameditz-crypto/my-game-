@@ -1061,7 +1061,7 @@
       if(chessResultTitle) chessResultTitle.textContent=title;
       if(chessResultDetail)chessResultDetail.textContent=detail;
       if(chessResultEl)    chessResultEl.classList.remove('hidden');
-      if(window.DZShare)   DZShare.setResult({ game:'Chess', slug:'chess', winner:title, detail:detail, accent:'#f5c518', icon:'♟' });
+      if(window.DZShare)   DZShare.setResult({ game:'Chess', slug:'chess', winner:title, detail:detail, accent:'#f5c518', icon:'♟', score:chess.state&&chess.state.history?chess.state.history.length:0, diff:chess.botDepth<=1?'easy':chess.botDepth<=3?'medium':'hard', isWin:reason==='checkmate'&&title.indexOf('Bot')===-1 });
     },400);
   }
 

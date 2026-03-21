@@ -590,11 +590,11 @@
     if (winner === -1) {
       el('tetris-result-title').textContent = '🤝 Draw!';
       el('tetris-result-detail').textContent = 'Both players topped out simultaneously!';
-      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:"It's a Draw!", detail:'Both topped out simultaneously', accent:'#00e5ff', icon:'🧱' });
+      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:"It's a Draw!", detail:'Both topped out simultaneously', accent:'#00e5ff', icon:'🧱', score:0, diff:TB.mode||'', isWin:false });
     } else {
       el('tetris-result-title').textContent = '🏆 ' + names[winner] + ' Wins!';
       el('tetris-result-detail').textContent = 'Scores: P1 ' + TB.players[0].score + ' | ' + names[1] + ' ' + TB.players[1].score;
-      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:names[winner]+' Wins! 🏆', detail:'Scores: P1 '+TB.players[0].score+' | '+names[1]+' '+TB.players[1].score, accent:'#00e5ff', icon:'🧱' });
+      if (window.DZShare) DZShare.setResult({ game:'Tetris Battle', slug:'tetris', winner:names[winner]+' Wins! 🏆', detail:'Scores: P1 '+TB.players[0].score+' | '+names[1]+' '+TB.players[1].score, accent:'#00e5ff', icon:'🧱', score:TB.players[winner].score, diff:TB.mode||'', isWin:winner===0 });
     }
     el('tetris-result').classList.remove('hidden');
     if (typeof SoundManager !== 'undefined' && SoundManager.win) SoundManager.win();

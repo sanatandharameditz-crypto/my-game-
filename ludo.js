@@ -996,7 +996,7 @@
     $id('ludo-result-title').textContent  = title;
     $id('ludo-result-detail').textContent = detail;
     $id('ludo-result').classList.remove('hidden');
-    if (window.DZShare) DZShare.setResult({ game:'Ludo', slug:'ludo', winner:title, detail:detail.replace(/[🎉💀🏆]/g,'').trim(), accent:'#ff1744', icon:'🎲' });
+    if (window.DZShare) DZShare.setResult({ game:'Ludo', slug:'ludo', winner:title, detail:detail.replace(/[🎉💀🏆]/g,'').trim(), accent:'#ff1744', icon:'🎲', score:turnCount, diff:botDiff, isWin:isHuman });
   }
 
   /* ═══════════════════════════════════════════════════════

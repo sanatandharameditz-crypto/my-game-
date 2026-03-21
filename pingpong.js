@@ -453,7 +453,7 @@
         if($resTitle) $resTitle.textContent=w+' WINS!';
         if($resSub)   $resSub.textContent=s1+' – '+s2;
         showPanel('result'); stopLoop();
-        if(window.DZShare) DZShare.setResult({ game:'Ping Pong', slug:'ping-pong', winner:w+' WINS!', detail:'Final score: '+s1+' – '+s2, accent:'#00e5ff', icon:'🏓' });
+        if(window.DZShare) DZShare.setResult({ game:'Ping Pong', slug:'ping-pong', winner:w+' WINS!', detail:'Final score: '+s1+' – '+s2, accent:'#00e5ff', icon:'🏓', score:Math.max(s1,s2), diff:'', isWin:s1>=WIN });
       },700);
       return true;
     }

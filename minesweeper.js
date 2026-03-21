@@ -302,7 +302,7 @@
         res.appendChild(shareBtn);
       }
     }
-    if (window.DZShare) DZShare.setResult({ game:'Minesweeper', slug:'minesweeper', winner:won?'You Win! 🏆':'Boom! 💥', detail:won?'Cleared in '+ms.timerVal+'s':'Better luck next time!', accent:'#ef4444', icon:'💣' });
+    if (window.DZShare) DZShare.setResult({ game:'Minesweeper', slug:'minesweeper', winner:won?'You Win! 🏆':'Boom! 💥', detail:won?'Cleared in '+ms.timerVal+'s':'Better luck next time!', accent:'#ef4444', icon:'💣', score:ms.timerVal, diff:ms.diff||'medium', isWin:won });
   }
 
   // ── Timer ────────────────────────────────────────────

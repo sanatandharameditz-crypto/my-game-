@@ -5266,30 +5266,30 @@ if (document.readyState === 'loading') {
       <span class="dz-share-title">📤 Share Your Result</span>
       <button id="dz-share-close" class="dz-share-close" aria-label="Close">✕</button>
     </div>
+    <div class="dz-share-name-wrap">
+      <label class="dz-share-name-label" for="dz-share-name">Your name (shows on the card)</label>
+      <input id="dz-share-name" class="dz-share-name-input" type="text"
+             maxlength="18" placeholder="e.g. Rahul" autocomplete="off" spellcheck="false" />
+    </div>
     <div class="dz-share-preview-wrap">
       <div id="dz-share-preview" class="dz-share-preview">
         <div class="dz-share-spinner"></div>
       </div>
-      <p class="dz-share-hint">Save the image above, then share it anywhere!</p>
+      <p class="dz-share-hint">💡 Save image → share on Instagram with the caption below</p>
     </div>
     <div class="dz-share-actions">
-      <button id="dz-share-save-btn" class="dz-share-btn dz-share-btn--save">
-        📥 Save Image
-      </button>
-      <button id="dz-share-native-btn" class="dz-share-btn dz-share-btn--native">
-        📱 Share…
-      </button>
+      <button id="dz-share-save-btn" class="dz-share-btn dz-share-btn--save">📥 Save Image</button>
       <button id="dz-share-wa-btn" class="dz-share-btn dz-share-btn--wa">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.495 2 2 6.495 2 12.05c0 1.97.554 3.81 1.516 5.374L2 22l4.709-1.489A10.008 10.008 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.395 17.605 2 12.05 2zm0 18.17a8.12 8.12 0 01-4.382-1.27l-.314-.186-3.26 1.031 1.05-3.17-.204-.325A8.13 8.13 0 013.88 11.95c0-4.51 3.66-8.17 8.17-8.17s8.17 3.66 8.17 8.17-3.66 8.22-8.17 8.22z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.495 2 2 6.495 2 12.05c0 1.97.554 3.81 1.516 5.374L2 22l4.709-1.489A10.008 10.008 0 0012.05 22C17.605 22 22 17.505 22 11.95 22 6.395 17.605 2 12.05 2zm0 18.17a8.12 8.12 0 01-4.382-1.27l-.314-.186-3.26 1.031 1.05-3.17-.204-.325A8.13 8.13 0 013.88 11.95c0-4.51 3.66-8.17 8.17-8.17s8.17 3.66 8.17 8.17-3.66 8.22-8.17 8.22z"/></svg>
         WhatsApp
       </button>
-      <button id="dz-share-tw-btn" class="dz-share-btn dz-share-btn--tw">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        Twitter / X
-      </button>
-      <button id="dz-share-copy-btn" class="dz-share-btn dz-share-btn--copy">
-        🔗 Copy Link
-      </button>
+      <button id="dz-share-ig-btn" class="dz-share-btn dz-share-btn--ig">📸 Instagram</button>
+      <button id="dz-share-copy-btn" class="dz-share-btn dz-share-btn--copy">🔗 Copy Link</button>
+    </div>
+    <div id="dz-share-ig-wrap" class="dz-share-ig-wrap" style="display:none">
+      <div class="dz-share-ig-label">📋 Caption for Instagram (copy &amp; paste):</div>
+      <div id="dz-share-ig-caption" class="dz-share-ig-caption"></div>
+      <button id="dz-share-ig-copy" class="dz-share-ig-copy-btn">📋 Copy Caption</button>
     </div>
   </div>
 
