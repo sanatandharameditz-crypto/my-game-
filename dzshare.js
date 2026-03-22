@@ -144,21 +144,21 @@
       var tg = ctx.createLinearGradient(0, 0, W, 0);
       tg.addColorStop(0, acc);
       tg.addColorStop(0.7, _hex2rgba(acc, 0.3));
-      tg.addColorStop(1, 'transparent');
+      tg.addColorStop(1, _hex2rgba(acc, 0));
       ctx.fillStyle = tg; ctx.fillRect(0, 0, W, 6);
 
       /* bottom accent bar */
       var bg = ctx.createLinearGradient(0, 0, W, 0);
-      bg.addColorStop(0, 'transparent');
+      bg.addColorStop(0, _hex2rgba(acc, 0));
       bg.addColorStop(0.3, _hex2rgba(acc, 0.3));
       bg.addColorStop(1, acc);
       ctx.fillStyle = bg; ctx.fillRect(0, H - 6, W, 6);
 
       /* left glow strip */
       var lg = ctx.createLinearGradient(0, 0, 0, H);
-      lg.addColorStop(0, 'transparent');
+      lg.addColorStop(0, _hex2rgba(acc, 0));
       lg.addColorStop(0.5, _hex2rgba(acc, 0.18));
-      lg.addColorStop(1, 'transparent');
+      lg.addColorStop(1, _hex2rgba(acc, 0));
       ctx.fillStyle = lg; ctx.fillRect(0, 0, 4, H);
 
       /* ── DuelZone brand (top-left) ── */
@@ -193,9 +193,9 @@
 
       /* accent underline */
       var ug = ctx.createLinearGradient(260, 0, 540, 0);
-      ug.addColorStop(0, 'transparent');
+      ug.addColorStop(0, _hex2rgba(acc, 0));
       ug.addColorStop(0.5, acc);
-      ug.addColorStop(1, 'transparent');
+      ug.addColorStop(1, _hex2rgba(acc, 0));
       ctx.strokeStyle = ug; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(260, 194); ctx.lineTo(540, 194); ctx.stroke();
 
@@ -231,9 +231,9 @@
 
       /* divider */
       var dg = ctx.createLinearGradient(60, 0, W - 60, 0);
-      dg.addColorStop(0, 'transparent');
+      dg.addColorStop(0, 'rgba(255,255,255,0)');
       dg.addColorStop(0.5, 'rgba(255,255,255,0.10)');
-      dg.addColorStop(1, 'transparent');
+      dg.addColorStop(1, 'rgba(255,255,255,0)');
       ctx.strokeStyle = dg; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(60, 360); ctx.lineTo(W - 60, 360); ctx.stroke();
 

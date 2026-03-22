@@ -8732,44 +8732,43 @@ window._dzRouter = (function () {
 
     if (!screenId) return;
 
-    // ── Triple-fallback routing so blank screen never happens ──
     var _routed = false;
 
     function _doRoute() {
       if (_routed) return;
       _routed = true;
-      // Hide hub — defensive against game inits re-showing it
       var h = document.getElementById('screen-hub');
       if (h) { h.classList.add('hidden'); h.style.setProperty('display','none','important'); }
-      // Clean ?game= from URL so it looks nice (replaces state)
       try {
-        var cleanPath = _fullPath(slug);
-        history.replaceState({ screenId: SLUG_TO_SCREEN[slug] || null }, '', cleanPath);
+        history.replaceState({ screenId: SLUG_TO_SCREEN[slug] || null }, '', _fullPath(slug));
       } catch(e) {}
-      _routeFromSlug(slug);
-      // Re-allow hub display for when user goes back
+      try {
+        _routeFromSlug(slug);
+      } catch(err) {
+        console.error('[DZRouter] routing failed, retrying:', err);
+        // Retry once after 500ms if first attempt throws
+        setTimeout(function(){
+          try { _routeFromSlug(slug); } catch(e2) { console.error('[DZRouter] retry failed:', e2); }
+        }, 500);
+      }
       setTimeout(function() {
         var hub2 = document.getElementById('screen-hub');
         if (hub2) hub2.style.removeProperty('display');
-      }, 600);
+      }, 800);
     }
 
-    // Hide hub immediately — before any game script re-shows it
+    // Hide hub immediately
     var hub = document.getElementById('screen-hub');
     if (hub) hub.classList.add('hidden');
 
-    // Fallback 1: DOMContentLoaded
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(_doRoute, 100);
-      });
-    }
-    // Fallback 2: load event
+    // Wait for load event (ensures all game JS files are ready)
     window.addEventListener('load', function() {
-      setTimeout(_doRoute, 50);
+      setTimeout(_doRoute, 80);
     });
-    // Fallback 3: timeout safety net (catches edge cases)
-    setTimeout(_doRoute, 2500);
+    // Safety net: if load already fired
+    if (document.readyState === 'complete') {
+      setTimeout(_doRoute, 80);
+    }
   })();
 
   return api;

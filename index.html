@@ -5273,9 +5273,6 @@ if (document.readyState === 'loading') {
   <!-- ══════════════════════════════════════════════
        SHARE MODAL
   ══════════════════════════════════════════════ -->
-  <!-- DZShare — standalone share system -->
-  <script src="dzshare.js"></script>
-
   <div id="dz-share-backdrop" class="dz-share-backdrop" onclick="DZShare.closeModal()"></div>
   <div id="dz-share-modal" class="dz-share-modal" role="dialog" aria-modal="true" aria-label="Share result">
     <div class="dz-share-header">
@@ -5312,5 +5309,7 @@ if (document.readyState === 'loading') {
     </div>
   </div>
 
+  <!-- DZShare loads last so all modal HTML exists in DOM -->
+  <script src="dzshare.js"></script>
 </body>
 </html>
