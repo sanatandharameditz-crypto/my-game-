@@ -4652,23 +4652,29 @@ function _wireResultButtons() {
   // Hub helper
   function goHub() { window.dzNavShowHome && window.dzNavShowHome(); }
   // Setup helpers per game
-  function setupTTT()      { var b=document.getElementById('ttt-back-to-home');    if(b)b.click(); }
-  function setupRPS()      { var b=document.getElementById('rps-back-to-home');    if(b)b.click(); }
-  function setupTap()      { var b=document.getElementById('tap-back-to-home');    if(b)b.click(); }
-  function setup2048()     { var b=document.getElementById('d2048-back-to-home');  if(b)b.click(); }
-  function setupC4()       { var b=document.getElementById('c4-back-to-home');     if(b)b.click(); }
-  function setupCricket()  { var s=document.getElementById('cricket-setup'),p=document.getElementById('cricket-play'),r=document.getElementById('cricket-result'); if(s)s.classList.remove('hidden'); if(p)p.classList.add('hidden'); if(r)r.classList.add('hidden'); }
-  function setupPB()       { var h=document.getElementById('pb-home'),p=document.getElementById('pb-play-panel'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(p)p.classList.add('hidden'); }
-  function setupChess()    { var b=document.getElementById('chess-back-hub-play'); if(b)b.click(); }
-  function setupBS()       { var m=document.getElementById('bs-mode-panel'); if(m)m.classList.remove('bs-hidden'); }
-  function setupCK()       { var m=document.getElementById('ck-mode-panel'); if(m)m.classList.remove('ck-hidden'); }
-  function setupDarts()    { var b=document.getElementById('darts-back-setup');    if(b)b.click(); }
-  function setupPP()       { var b=document.getElementById('pp-setup-btn');        if(b)b.click(); }
-  function setupTetris()   { var h=document.getElementById('tetris-home'),p=document.getElementById('tetris-play'),r=document.getElementById('tetris-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.tetrisStop)try{tetrisStop();}catch(e){} }
-  function setupReaction() { var h=document.getElementById('rd-home'),p=document.getElementById('rd-play'),r=document.getElementById('rd-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.rdStop)try{rdStop();}catch(e){} }
-  function setupLudo()     { var b=document.getElementById('ludo-back-play'); if(b)b.click(); var r=document.getElementById('ludo-result'); if(r)r.classList.add('hidden'); }
-  function setupCarrom()   { var h=document.getElementById('carrom-home'),p=document.getElementById('carrom-play'),r=document.getElementById('carrom-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.carromStop)try{carromStop();}catch(e){} }
-  function setupSudoku()   { var h=document.getElementById('sdk-home'),p=document.getElementById('sdk-play'),r=document.getElementById('sdk-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(window.sudokuStop)try{sudokuStop();}catch(e){} }
+  function setupTTT()      { _stopForSetup(); var b=document.getElementById('ttt-back-to-home');    if(b)b.click(); }
+  function setupRPS()      { _stopForSetup(); var b=document.getElementById('rps-back-to-home');    if(b)b.click(); }
+  function setupTap()      { _stopForSetup(); var b=document.getElementById('tap-back-to-home');    if(b)b.click(); }
+  function setup2048()     { _stopForSetup(); var b=document.getElementById('d2048-back-to-home');  if(b)b.click(); }
+  function setupC4()       { _stopForSetup(); var b=document.getElementById('c4-back-to-home');     if(b)b.click(); }
+  function setupCricket()  { _stopForSetup(); var s=document.getElementById('cricket-setup'),p=document.getElementById('cricket-play'),r=document.getElementById('cricket-result'); if(s)s.classList.remove('hidden'); if(p)p.classList.add('hidden'); if(r)r.classList.add('hidden'); }
+  function setupPB()       { _stopForSetup(); var h=document.getElementById('pb-home'),p=document.getElementById('pb-play-panel'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} if(p)p.classList.add('hidden'); }
+  // ── Helper: stop all game loops/audio before showing setup ──
+  function _stopForSetup() {
+    if (typeof window.dzStopAllGames === 'function') window.dzStopAllGames();
+    // Also suspend audio context to kill any lingering sounds
+    if (typeof window.dzSuspendAllAudio === 'function') window.dzSuspendAllAudio();
+  }
+  function setupChess()    { _stopForSetup(); var b=document.getElementById('chess-back-hub-play'); if(b)b.click(); }
+  function setupBS()       { _stopForSetup(); var m=document.getElementById('bs-mode-panel'); if(m)m.classList.remove('bs-hidden'); }
+  function setupCK()       { _stopForSetup(); var m=document.getElementById('ck-mode-panel'); if(m)m.classList.remove('ck-hidden'); }
+  function setupDarts()    { _stopForSetup(); var b=document.getElementById('darts-back-setup'); if(b)b.click(); }
+  function setupPP()       { _stopForSetup(); var b=document.getElementById('pp-setup-btn'); if(b)b.click(); }
+  function setupTetris()   { _stopForSetup(); var h=document.getElementById('tetris-home'),p=document.getElementById('tetris-play'),r=document.getElementById('tetris-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
+  function setupReaction() { _stopForSetup(); var h=document.getElementById('rd-home'),p=document.getElementById('rd-play'),r=document.getElementById('rd-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
+  function setupLudo()     { _stopForSetup(); var b=document.getElementById('ludo-back-play'); if(b)b.click(); var r=document.getElementById('ludo-result'); if(r)r.classList.add('hidden'); }
+  function setupCarrom()   { _stopForSetup(); var h=document.getElementById('carrom-home'),p=document.getElementById('carrom-play'),r=document.getElementById('carrom-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
+  function setupSudoku()   { _stopForSetup(); var h=document.getElementById('sdk-home'),p=document.getElementById('sdk-play'),r=document.getElementById('sdk-result'); if(p){p.classList.add('hidden');p.style.setProperty('display','none','important');} if(r)r.classList.add('hidden'); if(h){h.classList.remove('hidden');h.style.removeProperty('display');} }
 
   // ── TTT ──
   wire('ttt-result-setup', setupTTT);

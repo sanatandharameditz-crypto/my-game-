@@ -8051,21 +8051,33 @@ function dzResumeAllGames() {
 }
 
 function dzStopAllGames() {
-  // Full stop — pause everything then also kill the Air Hockey RAF loop
+  // Full stop — pause everything and kill all loops
   dzPauseAllGames();
 
-  // ── CRITICAL: reset the global pause flag and audio ──────────
-  // dzPauseAllGames() sets DZ_PAUSED=true (correct for menu-open).
-  // dzStopAllGames() is also called during game-to-game navigation,
-  // so we must clear DZ_PAUSED immediately or the incoming game's
-  // RAF loop hits `if (window.DZ_PAUSED) return` and never runs.
+  // Clear DZ_PAUSED so the NEXT game's RAF loop can start cleanly.
+  // Do NOT call dzResumeAllAudio() here — that would restart music!
   window.DZ_PAUSED = false;
-  dzResumeAllAudio();
 
   // Air Hockey: stop RAF loop entirely (not just paused flag)
   if (typeof ahStopLoop === 'function') ahStopLoop();
   // Reset AH pause flag so next session starts clean
   if (typeof ahPaused !== 'undefined') ahPaused = false;
+
+  // ── Stop ALL game-specific music/audio ──────────────────────
+  var _s = function(fn) { try { if (typeof fn === 'function') fn(); } catch(e) {} };
+  _s(window.ludomStop);        // Ludo background music
+  _s(window.stopMusic);        // Ludo stopMusic alias
+  _s(window.tetrisStop);       // Tetris game loop + sound
+  _s(window.rdStop);           // Reaction Duel
+  _s(window.ppStop);           // Ping Pong
+  _s(window.carromStop);       // Carrom
+  _s(window.sudokuStop);       // Sudoku timer
+  _s(window.mineDestroy);      // Minesweeper
+  _s(window.bombermanDestroy); // Bomberman
+  _s(window.sdStopGame);       // Space Dodge
+  _s(window.territoryDestroy); // Territory
+  _s(window.tanksDestroy);     // Tanks
+  _s(window.scDestroy);        // Star Catcher
 
   // Cricket: unlock numpad for next fresh session
   if (typeof cricNumpadLocked !== 'undefined') cricNumpadLocked = false;

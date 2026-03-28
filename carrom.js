@@ -73,6 +73,21 @@
     });
   });
 
+  /* ── Auto-apply difficulty from challenge link ─────────── */
+  (function() {
+    if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+    const _ch = DZShare.getChallenge();
+    if (!_ch || _ch.slug !== 'carrom' || !_ch.diff) return;
+    const target = _ch.diff.toLowerCase();
+    qA('.carrom-diff').forEach(btn => {
+      if ((btn.dataset.diff || '').toLowerCase() === target) {
+        qA('.carrom-diff').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        difficulty = target;
+      }
+    });
+  })();
+
   $('carrom-start-btn').addEventListener('click', () => {
     window.scrollTo(0, 0);
     $('carrom-home').classList.add('hidden');

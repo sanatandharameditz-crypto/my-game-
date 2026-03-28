@@ -99,6 +99,21 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'darts' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.darts-diff-btn').forEach(function(btn){
+        if ((btn.getAttribute('data-diff') || '').toLowerCase() === target) {
+          document.querySelectorAll('.darts-diff-btn').forEach(function(b){ b.classList.remove('active'); });
+          btn.classList.add('active');
+          DS.botDiff = target;
+        }
+      });
+    })();
+
     $('darts-start-pvp').addEventListener('click', function(){ DS.vsBot = false; dartsStartGame(); });
     $('darts-start-bot').addEventListener('click', function(){ DS.vsBot = true;  dartsStartGame(); });
 

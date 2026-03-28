@@ -1134,6 +1134,28 @@ var bs = (function () {
       if (btn) btn.addEventListener('click', function() { bsSetDifficulty(d); });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────────
+       e.g. duelzone.online/battleship?challenge=Rahul&diff=easy  */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'battleship' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      ['easy','medium','hard'].forEach(function(d) {
+        if (d === target) {
+          state.difficulty = d;
+          var btn = dom('bs-diff-' + d + '-btn');
+          if (btn) {
+            ['easy','medium','hard'].forEach(function(x) {
+              var b = dom('bs-diff-' + x + '-btn');
+              if (b) b.classList.remove('active');
+            });
+            btn.classList.add('active');
+          }
+        }
+      });
+    })();
+
     var orientBtn = dom('bs-orient-btn');
     if (orientBtn) {
       orientBtn.addEventListener('click', function() {

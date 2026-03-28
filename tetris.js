@@ -112,6 +112,20 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ─────────── */
+    (function() {
+      if (!window.DZShare || typeof DZShare.getChallenge !== 'function') return;
+      var _ch = DZShare.getChallenge();
+      if (!_ch || _ch.slug !== 'tetris' || !_ch.diff) return;
+      var target = _ch.diff.toLowerCase();
+      document.querySelectorAll('.tetris-diff').forEach(function (b) {
+        if ((b.dataset.diff || '').toLowerCase() === target) {
+          document.querySelectorAll('.tetris-diff').forEach(function (x) { x.classList.remove('active'); });
+          b.classList.add('active'); TB.diff = target;
+        }
+      });
+    })();
+
     // Keyboard controls
     document.addEventListener('keydown', tbKeyDown);
   }

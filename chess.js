@@ -1156,6 +1156,25 @@
       });
     });
 
+    /* ── Auto-apply difficulty from challenge link ───────────────
+       When Player 2 opens duelzone.online/chess?challenge=Rahul&diff=easy
+       we pre-select the matching difficulty button automatically.       */
+    if (window.DZShare && typeof DZShare.getChallenge === 'function') {
+      var _chParams = DZShare.getChallenge();
+      if (_chParams && _chParams.slug === 'chess' && _chParams.diff) {
+        var _targetDiff = _chParams.diff.toLowerCase();
+        if (chessDiffBtns) chessDiffBtns.forEach(function (btn) {
+          var depth  = parseInt(btn.dataset.depth, 10) || 2;
+          var bDiff  = depth <= 1 ? 'easy' : depth <= 3 ? 'medium' : 'hard';
+          if (bDiff === _targetDiff) {
+            chessDiffBtns.forEach(function (b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            chess.botDepth = Math.min(Math.max(depth, 1), 4);
+          }
+        });
+      }
+    }
+
     if(chessColorBtns) chessColorBtns.forEach(function(btn){
       btn.addEventListener('click',function(){
         chessColorBtns.forEach(function(b){b.classList.remove('active');});
