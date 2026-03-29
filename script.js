@@ -1233,6 +1233,15 @@ tttBtnEasy.addEventListener('click',function(){if(tttDifficulty!=='easy')  tttSe
 tttBtnMed.addEventListener('click', function(){if(tttDifficulty!=='medium')tttSetDiff('medium');});
 tttBtnHard.addEventListener('click',function(){if(tttDifficulty!=='hard')  tttSetDiff('hard');});
 
+/* ── Auto-apply difficulty from challenge link ─────────── */
+(function(){
+  if(!window.DZShare||typeof DZShare.getChallenge!=='function')return;
+  var ch=DZShare.getChallenge();
+  if(!ch||ch.slug!=='tic-tac-toe'||!ch.diff)return;
+  var t=ch.diff.toLowerCase();
+  if(t==='easy'||t==='medium'||t==='hard')tttSetDiff(t);
+})();
+
 // Back to Hub button — resets board and returns to hub
 backBtn.addEventListener('click', function(){
   tttRestart();
@@ -1470,6 +1479,16 @@ function rpsSetBestOf(n) {
   rpsRestart();
 }
 
+/* ── Auto-apply best-of from challenge link ─────────── */
+(function(){
+  if(!window.DZShare||typeof DZShare.getChallenge!=='function')return;
+  var ch=DZShare.getChallenge();
+  if(!ch||ch.slug!=='rock-paper-scissors'||!ch.diff)return;
+  /* diff stored as 'best-of-5' → extract number */
+  var m=ch.diff.match(/(\d+)/);
+  if(m){var n=parseInt(m[1]);if(n===3||n===5||n===7)rpsSetBestOf(n);}
+})();
+
 function rpsSetDiff(level) {
   rpsDiff = level;
   ['rps-easy','rps-medium','rps-hard'].forEach(function(id){ document.getElementById(id).classList.remove('active'); });
@@ -1684,6 +1703,19 @@ document.getElementById('tap-btn-pve').addEventListener('click', function(){
     tapReset();
   });
 });
+
+/* ── Auto-apply difficulty from challenge link ─────────── */
+(function(){
+  if(!window.DZShare||typeof DZShare.getChallenge!=='function')return;
+  var ch=DZShare.getChallenge();
+  if(!ch||ch.slug!=='tap-battle'||!ch.diff)return;
+  var t=ch.diff.toLowerCase();
+  if(t==='easy'||t==='medium'||t==='hard'){
+    tapDiff=t;
+    ['tap-easy','tap-medium','tap-hard'].forEach(function(id){document.getElementById(id).classList.remove('active');});
+    var btn=document.getElementById('tap-'+t);if(btn)btn.classList.add('active');
+  }
+})();
 document.getElementById('tap-restart').addEventListener('click', tapReset);
 
 
@@ -3809,6 +3841,24 @@ document.getElementById('c4-hp-pve').addEventListener('click', function() {
   });
 });
 
+/* ── Auto-apply difficulty from challenge link ─────────── */
+(function(){
+  if(!window.DZShare||typeof DZShare.getChallenge!=='function')return;
+  var ch=DZShare.getChallenge();
+  if(!ch||ch.slug!=='connect-four'||!ch.diff)return;
+  var t=ch.diff.toLowerCase();
+  if(t==='easy'||t==='medium'||t==='hard'){
+    c4HP_diff=t;
+    ['easy','medium','hard'].forEach(function(x){document.getElementById('c4-hp-'+x).classList.remove('active');});
+    var btn=document.getElementById('c4-hp-'+t);if(btn)btn.classList.add('active');
+    /* also switch to pve mode so diff row is visible */
+    c4HP_mode='pve';
+    document.getElementById('c4-hp-pve').classList.add('active');
+    document.getElementById('c4-hp-pvp').classList.remove('active');
+    document.getElementById('c4-hp-diff-row').style.display='';
+  }
+})();
+
 function showC4Home() {
   document.getElementById('c4-home').classList.remove('hidden');
   document.getElementById('c4-play-panel').classList.add('hidden');
@@ -5246,6 +5296,21 @@ function pbStartGame() {
       pb.diff = this.getAttribute('data-diff');
     });
   });
+
+  /* ── Auto-apply difficulty from challenge link ─────────── */
+  (function(){
+    if(!window.DZShare||typeof DZShare.getChallenge!=='function')return;
+    var ch=DZShare.getChallenge();
+    if(!ch||ch.slug!=='password-breaker'||!ch.diff)return;
+    var t=ch.diff.toLowerCase();
+    var id='pb-diff-'+t;
+    var btn=document.getElementById(id);
+    if(btn){
+      document.querySelectorAll('#pb-home [data-diff]').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      pb.diff=t;
+    }
+  })();
 
   // Start button
   document.getElementById('pb-hp-start').addEventListener('click', function() {
