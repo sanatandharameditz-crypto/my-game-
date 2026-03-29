@@ -160,6 +160,463 @@
      • Called via setTimeout(50ms) from openModal so the spinner
        renders before canvas work starts (mobile single-thread issue)
      ================================================================ */
+
+  /* ================================================================
+     _gameMsg — dare/challenge tone messages for every game.
+
+     The goal: Player 2 must feel like they're being dared.
+     "Rahul beat Chess AI on Hard in 38 moves — do you dare?"
+     Not a boring score share — a personal challenge.
+
+     Returns: { headline, subline, cta, wa }
+       headline — big card text
+       subline  — score/detail line
+       cta      — call to action on card
+       wa       — full WhatsApp/share message text
+     ================================================================ */
+  function _gameMsg(name) {
+    var n      = (name || '').trim();
+    var slug   = _r.slug || '';
+    var diff   = _r.diff ? (_r.diff.charAt(0).toUpperCase() + _r.diff.slice(1)) : '';
+    var detail = _safe(_r.detail, 54);
+    var win    = _r.isWin;
+    var game   = _safe(_r.game, 22) || 'DuelZone';
+
+    /* ── Generic fallback (used when no slug matches) ── */
+    var headline, subline, cta, wa;
+
+    if (n) {
+      headline = win ? n + '\'s Challenge!' : n + '\'s Dare!';
+      subline  = detail || (diff ? diff + ' mode' : '');
+      cta      = 'Do you dare to accept?';
+      wa       = n + ' is challenging you at ' + game + ' on DuelZone!\n' +
+                 (detail ? detail + '\n' : '') +
+                 'Accept the challenge: ';
+    } else {
+      headline = _safe(_r.winner, 28) || game;
+      subline  = detail || '';
+      cta      = 'Can you beat this?';
+      wa       = 'Someone just played ' + game + ' on DuelZone!\n' +
+                 (detail ? detail + '\n' : '') + 'Think you can do better? ';
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       PER-GAME MESSAGES
+       ─────────────────────────────────────────────────────
+       win=true  → player beat the bot / won the round
+       win=false → player lost to bot ("can you do what they couldn\'t?")
+       n = player\'s typed name
+       diff = Easy / Medium / Hard etc.
+       detail = exact detail string from setResult
+    ═══════════════════════════════════════════════════════ */
+
+    /* ── CHESS ─────────────────────────────────────────── */
+    if (slug === 'chess') {
+      var moves = _r.score ? _r.score + ' moves' : '';
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Chess!';
+          subline  = 'Beat the AI on ' + (diff||'?') + (moves ? ' in ' + moves : '');
+          cta      = 'Can YOU beat it in fewer moves?';
+          wa       = n + ' just beat the Chess AI on ' + (diff||'') +
+                     (moves ? ' in just ' + moves : '') + '!' +
+                     '\nThink you can do better? I dare you to try:';
+        } else {
+          headline = n + ' lost to Chess AI!';
+          subline  = 'Failed on ' + (diff||'') + (moves ? ' · ' + moves : '');
+          cta      = 'Can YOU beat the bot they couldn\'t?';
+          wa       = n + ' lost to the Chess AI on ' + (diff||'') + '.' +
+                     '\nCan YOU beat the bot where they couldn\'t? Prove it:';
+        }
+      }
+    }
+
+    /* ── CHECKERS ──────────────────────────────────────── */
+    else if (slug === 'checkers') {
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Checkers!';
+          subline  = 'Beat the AI on ' + (diff||'this') + ' level';
+          cta      = 'Accept the challenge?';
+          wa       = n + ' just crushed the Checkers AI on ' + (diff||'') + '!' +
+                     '\nDare to take them on? Click here:';
+        } else {
+          headline = n + ' got destroyed at Checkers!';
+          subline  = 'Lost on ' + (diff||'') + ' — can YOU win?';
+          cta      = 'Beat the bot they couldn\'t!';
+          wa       = n + ' lost to the Checkers AI on ' + (diff||'') + '.' +
+                     '\nCan YOU beat the bot that beat them? Accept the dare:';
+        }
+      }
+    }
+
+    /* ── SUDOKU ────────────────────────────────────────── */
+    else if (slug === 'sudoku') {
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Sudoku!';
+          subline  = detail || (diff ? diff + ' puzzle' : '');
+          cta      = 'Solve it faster if you can!';
+          wa       = n + ' solved a ' + (diff||'') + ' Sudoku on DuelZone!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nThink you can solve it faster? I dare you:';
+        } else {
+          headline = n + ' failed ' + (diff||'') + ' Sudoku!';
+          subline  = 'Too many mistakes — your turn to try';
+          cta      = 'Finish what they couldn\'t!';
+          wa       = n + ' couldn\'t finish the ' + (diff||'') + ' Sudoku!' +
+                     '\nCan YOU do what they couldn\'t? Accept the challenge:';
+        }
+      }
+    }
+
+    /* ── MINESWEEPER ───────────────────────────────────── */
+    else if (slug === 'minesweeper') {
+      var time = _r.score ? _r.score + 's' : '';
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Minesweeper!';
+          subline  = 'Cleared ' + (diff||'') + (time ? ' in ' + time : '') + ' — beat that!';
+          cta      = 'Defuse it faster if you dare!';
+          wa       = n + ' cleared ' + (diff||'') + ' Minesweeper' +
+                     (time ? ' in ' + time : '') + ' without blowing up!' +
+                     '\nDare to beat their time? Go here:';
+        } else {
+          headline = n + ' hit a mine!';
+          subline  = 'BOOM on ' + (diff||'') + ' — think YOU can survive?';
+          cta      = 'Don\'t blow up like they did!';
+          wa       = n + ' hit a mine on ' + (diff||'') + ' Minesweeper!' +
+                     '\nThink YOU can clear it without exploding? Prove it:';
+        }
+      }
+    }
+
+    /* ── HAND CRICKET ──────────────────────────────────── */
+    else if (slug === 'hand-cricket') {
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Hand Cricket!';
+          subline  = detail || 'Beat their score!';
+          cta      = 'Score more runs if you dare!';
+          wa       = n + ' just dominated Hand Cricket on DuelZone!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nThink your cricket is better? Accept the dare:';
+        } else {
+          headline = n + ' got out at Hand Cricket!';
+          subline  = detail || 'Bot won — your turn!';
+          cta      = 'Can YOU score where they got out?';
+          wa       = n + ' got out against the cricket bot!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nCan YOU score where they failed? Accept the challenge:';
+        }
+      }
+    }
+
+    /* ── DARTS ─────────────────────────────────────────── */
+    else if (slug === 'darts') {
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Darts!';
+          subline  = 'Beat the ' + (diff||'') + ' bot — if you can!';
+          cta      = 'Is your aim better than theirs?';
+          wa       = n + ' just bullseyed the Darts bot on ' + (diff||'') + ' difficulty!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nThink your aim is sharper? I dare you to prove it:';
+        } else {
+          headline = n + ' missed at Darts!';
+          subline  = 'Bot won on ' + (diff||'') + ' — can YOU hit the bullseye?';
+          cta      = 'Better aim than them?';
+          wa       = n + ' missed against the Darts bot on ' + (diff||'') + '!' +
+                     '\nCan YOUR aim beat the bot? Accept the dare:';
+        }
+      }
+    }
+
+    /* ── LUDO ──────────────────────────────────────────── */
+    else if (slug === 'ludo') {
+      var turns = _r.score ? _r.score + ' turns' : '';
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Ludo!';
+          subline  = 'Beat ' + (diff||'') + ' bot' + (turns ? ' in ' + turns : '');
+          cta      = 'Can YOU finish faster?';
+          wa       = n + ' just beat the Ludo bot' +
+                     (diff ? ' on ' + diff : '') +
+                     (turns ? ' in ' + turns : '') + '!' +
+                     '\nCan YOU finish in fewer turns? Accept the dare:';
+        } else {
+          headline = n + ' lost at Ludo!';
+          subline  = 'Knocked out by ' + (diff||'') + ' bot!';
+          cta      = 'Beat the bot they couldn\'t!';
+          wa       = n + ' got knocked out by the Ludo bot' +
+                     (diff ? ' on ' + diff : '') + '!' +
+                     '\nCan YOU beat the bot where they failed? Accept the challenge:';
+        }
+      }
+    }
+
+    /* ── CARROM ────────────────────────────────────────── */
+    else if (slug === 'carrom') {
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Carrom!';
+          subline  = detail || (diff ? 'Beat ' + diff + ' bot' : 'Pocketed everything!');
+          cta      = 'Can YOU pocket more?';
+          wa       = n + ' just dominated Carrom on DuelZone!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nDare to beat their pocket count? Go here:';
+        } else {
+          headline = n + ' lost at Carrom!';
+          subline  = 'Bot won — can YOU do better?';
+          cta      = 'Accept the Carrom challenge!';
+          wa       = n + ' lost at Carrom!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nCan YOU win where they lost? Prove it:';
+        }
+      }
+    }
+
+    /* ── PING PONG ─────────────────────────────────────── */
+    else if (slug === 'ping-pong') {
+      if (n) {
+        if (win) {
+          headline = n + ' dares you at Ping Pong!';
+          subline  = detail || 'Think you can return their serve?';
+          cta      = 'Return the challenge!';
+          wa       = n + ' is challenging you to Ping Pong on DuelZone!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nDare to take them on? Click here:';
+        } else {
+          headline = n + ' lost at Ping Pong!';
+          subline  = detail || 'Can YOU win where they lost?';
+          cta      = 'Win the match they couldn\'t!';
+          wa       = n + ' lost at Ping Pong on DuelZone!' +
+                     '\nCan YOU win where they lost? Accept the dare:';
+        }
+      }
+    }
+
+    /* ── AIR HOCKEY ────────────────────────────────────── */
+    else if (slug === 'air-hockey') {
+      if (n) {
+        headline = n + (win ? ' dares you at Air Hockey!' : ' got smashed at Air Hockey!');
+        subline  = detail || (win ? 'Think you can score more?' : 'Can YOU do better?');
+        cta      = win ? 'Defend against their power shot!' : 'Win where they lost!';
+        wa       = n + (win ? ' is dominating Air Hockey on DuelZone!' : ' got smashed at Air Hockey!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Dare to score more? Go here:' : 'Can YOU win where they couldn\'t?');
+      }
+    }
+
+    /* ── BATTLESHIP ────────────────────────────────────── */
+    else if (slug === 'battleship') {
+      if (n) {
+        if (win) {
+          headline = n + ' sank your fleet!';
+          subline  = detail || 'Can YOUR navy survive?';
+          cta      = 'Return fire if you dare!';
+          wa       = n + ' just sank the entire fleet in Battleship on DuelZone!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nThink YOUR navy can survive? I dare you to try:';
+        } else {
+          headline = n + '\'s fleet got sunk!';
+          subline  = 'Can YOU keep YOUR fleet afloat?';
+          cta      = 'Win the battle they lost!';
+          wa       = n + '\'s fleet got completely destroyed in Battleship!' +
+                     '\nCan YOU win where they sank? Accept the dare:';
+        }
+      }
+    }
+
+    /* ── REACTION DUEL ─────────────────────────────────── */
+    else if (slug === 'reaction-duel') {
+      if (n) {
+        headline = win ? n + '\'s reflexes dare you!' : n + ' was too slow!';
+        subline  = detail || (win ? 'Can YOUR reaction beat theirs?' : 'Can YOU be faster?');
+        cta      = win ? 'Think you\'re faster? Prove it!' : 'Be faster than they were!';
+        wa       = n + (win ? ' just smashed Reaction Duel!' : ' was too slow at Reaction Duel!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOUR reflexes are faster? Dare to find out:' : 'Can YOU react faster? Accept the dare:');
+      }
+    }
+
+    /* ── TETRIS ────────────────────────────────────────── */
+    else if (slug === 'tetris') {
+      if (n) {
+        headline = win ? n + ' dares you at Tetris!' : n + ' got topped out!';
+        subline  = detail || (win ? 'Can YOU stack higher?' : 'Can YOU survive longer?');
+        cta      = win ? 'Stack better than them!' : 'Don\'t top out like they did!';
+        wa       = n + (win ? ' dominated Tetris Battle!' : ' got topped out at Tetris!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOU can stack better? Accept the dare:' : 'Can YOU survive longer? Prove it:');
+      }
+    }
+
+    /* ── BOMBERMAN ─────────────────────────────────────── */
+    else if (slug === 'bomberman') {
+      if (n) {
+        headline = win ? n + ' dares you at Bomberman!' : n + ' got blown up!';
+        subline  = detail || (win ? 'Can YOU outlast them?' : 'Don\'t blow up like they did!');
+        cta      = win ? 'Can YOUR bomb game beat theirs?' : 'Survive where they exploded!';
+        wa       = n + (win ? ' dominated Bomberman on DuelZone!' : ' got blown up in Bomberman!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOUR bomb skills are better? Accept the dare:' : 'Can YOU survive the blast? Prove it:');
+      }
+    }
+
+    /* ── TANKS ─────────────────────────────────────────── */
+    else if (slug === 'tanks') {
+      if (n) {
+        headline = win ? n + '\'s tank dares you!' : n + '\'s tank got destroyed!';
+        subline  = detail || (diff ? diff + ' bot' : '');
+        cta      = win ? 'Can YOUR tank destroy theirs?' : 'Win the battle they lost!';
+        wa       = n + (win ? '\'s tank just dominated on DuelZone!' : '\'s tank got blown up!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOUR tank is stronger? Accept the dare:' : 'Can YOUR tank win where theirs failed?');
+      }
+    }
+
+    /* ── STAR CATCHER ──────────────────────────────────── */
+    else if (slug === 'star-catcher') {
+      if (n) {
+        headline = win ? n + ' dares you at Star Catcher!' : n + ' dropped the stars!';
+        subline  = detail || (win ? 'Catch more stars if you can!' : 'Can YOU catch them all?');
+        cta      = win ? 'Out-catch them if you dare!' : 'Catch what they dropped!';
+        wa       = n + (win ? ' is catching stars on DuelZone!' : ' dropped the ball at Star Catcher!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOU can catch more? Accept the dare:' : 'Can YOU do better? Prove it:');
+      }
+    }
+
+    /* ── SPACE DODGE ───────────────────────────────────── */
+    else if (slug === 'space-dodge') {
+      if (n) {
+        headline = win ? n + ' dares you at Space Dodge!' : n + '\'s ship got hit!';
+        subline  = detail || (win ? 'Dodge longer if you dare!' : 'Don\'t get hit like they did!');
+        cta      = win ? 'Survive longer than them!' : 'Dodge what destroyed them!';
+        wa       = n + (win ? ' survived Space Dodge on DuelZone!' : '\'s ship got destroyed in Space Dodge!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOU can dodge longer? Accept the dare:' : 'Can YOU dodge what took them down?');
+      }
+    }
+
+    /* ── TERRITORY WAR ─────────────────────────────────── */
+    else if (slug === 'territory') {
+      if (n) {
+        headline = win ? n + ' conquered the map!' : n + ' lost the territory!';
+        subline  = detail || (win ? 'Can YOU claim more?' : 'Can YOU hold the ground?');
+        cta      = win ? 'Claim more territory than them!' : 'Win the war they lost!';
+        wa       = n + (win ? ' just conquered Territory War on DuelZone!' : ' lost the territory war!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOU can claim more territory? Accept the dare:' : 'Can YOU hold the ground where they lost?');
+      }
+    }
+
+    /* ── TIC TAC TOE ───────────────────────────────────── */
+    else if (slug === 'tic-tac-toe') {
+      if (n) {
+        headline = win ? n + ' dares you at Tic Tac Toe!' : n + ' lost at Tic Tac Toe!';
+        subline  = diff ? (win ? 'Beat ' + diff + ' bot — can YOU?' : 'Beaten on ' + diff + ' — your turn!') : detail;
+        cta      = win ? 'Out-think them!' : 'Win where they lost!';
+        wa       = n + (win ? ' beat the Tic Tac Toe bot on ' + (diff||'') + '!' : ' lost to the Tic Tac Toe bot on ' + (diff||'') + '!') +
+                   '\n' + (win ? 'Think YOUR strategy is better? Accept the dare:' : 'Can YOU beat the bot where they couldn\'t?');
+      }
+    }
+
+    /* ── CONNECT FOUR ──────────────────────────────────── */
+    else if (slug === 'connect-four') {
+      if (n) {
+        headline = win ? n + ' dares you at Connect Four!' : n + ' got connected!';
+        subline  = diff && diff.toLowerCase() !== 'pvp' ? (win ? 'Beat ' + diff + ' bot!' : 'Lost on ' + diff) : detail;
+        cta      = win ? 'Can YOU connect before them?' : 'Win what they lost!';
+        wa       = n + (win ? ' just beat the Connect Four bot' + (diff ? ' on ' + diff : '') + '!' : ' lost at Connect Four!') +
+                   '\n' + (win ? 'Think YOUR strategy can beat theirs? Accept the dare:' : 'Can YOU win where they lost?');
+      }
+    }
+
+    /* ── ROCK PAPER SCISSORS ───────────────────────────── */
+    else if (slug === 'rock-paper-scissors') {
+      if (n) {
+        headline = win ? n + ' dares you at RPS!' : n + ' got beaten at RPS!';
+        subline  = detail || (win ? 'Best your luck!' : 'Can YOU win the match?');
+        cta      = win ? 'Rock, Paper or Scissors — choose!' : 'Beat them in the rematch!';
+        wa       = n + (win ? ' just dominated Rock Paper Scissors on DuelZone!' : ' got beaten at Rock Paper Scissors!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOUR hand can beat theirs? Accept the dare:' : 'Can YOU win the rematch?');
+      }
+    }
+
+    /* ── TAP BATTLE ────────────────────────────────────── */
+    else if (slug === 'tap-battle') {
+      if (n) {
+        headline = win ? n + '\'s thumbs dare yours!' : n + '\'s thumbs lost!';
+        subline  = diff ? (win ? diff + ' speed — beat that!' : 'Outrun on ' + diff + ' speed') : 'First to 100 taps';
+        cta      = win ? 'Can YOUR thumbs keep up?' : 'Tap faster than they did!';
+        wa       = n + (win ? '\'s thumbs just won Tap Battle on DuelZone!' : '\'s thumbs couldn\'t keep up in Tap Battle!') +
+                   '\n' + (win ? 'Think YOUR thumbs are faster? Accept the dare:' : 'Think YOUR thumbs are faster?');
+      }
+    }
+
+    /* ── 2048 DUEL ─────────────────────────────────────── */
+    else if (slug === '2048-duel') {
+      if (n) {
+        headline = win ? n + ' dares you at 2048!' : n + '\'s tiles collapsed!';
+        subline  = detail || (win ? 'Merge higher than them!' : 'Can YOU merge higher?');
+        cta      = win ? 'Can YOU get a higher tile?' : 'Merge where they failed!';
+        wa       = n + (win ? ' just won 2048 Duel on DuelZone!' : '\'s tiles collapsed at 2048!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOU can merge higher? Accept the dare:' : 'Can YOU merge higher than they did?');
+      }
+    }
+
+    /* ── MEMORY FLIP ───────────────────────────────────── */
+    else if (slug === 'memory-flip') {
+      if (n) {
+        headline = win ? n + ' dares YOUR memory!' : n + '\'s memory failed!';
+        subline  = detail || (win ? 'Can YOU remember more pairs?' : 'Can YOU flip better?');
+        cta      = win ? 'Think YOUR memory is better?' : 'Flip better than they did!';
+        wa       = n + (win ? ' dominated Memory Flip Duel on DuelZone!' : '\'s memory failed at Memory Flip!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOUR memory is sharper? Accept the dare:' : 'Can YOU flip better? Prove it:');
+      }
+    }
+
+    /* ── CONNECT DOTS ──────────────────────────────────── */
+    else if (slug === 'connect-dots') {
+      if (n) {
+        headline = win ? n + ' dares you at Connect Dots!' : n + ' lost the dots!';
+        subline  = detail || (win ? 'Claim more boxes if you can!' : 'Can YOU claim more?');
+        cta      = win ? 'Out-connect them if you dare!' : 'Win the dots they lost!';
+        wa       = n + (win ? ' dominated Connect Dots on DuelZone!' : ' lost at Connect Dots!') +
+                   (detail ? '\n' + detail : '') +
+                   '\n' + (win ? 'Think YOU can claim more boxes? Accept the dare:' : 'Can YOU win where they lost?');
+      }
+    }
+
+    /* ── PASSWORD BREAKER ──────────────────────────────── */
+    else if (slug === 'password-breaker') {
+      if (n) {
+        if (win) {
+          headline = n + ' cracked YOUR code!';
+          subline  = detail || 'Can YOU crack it faster?';
+          cta      = 'Crack it faster if you dare!';
+          wa       = n + ' cracked the Password Breaker code on DuelZone!' +
+                     (detail ? '\n' + detail : '') +
+                     '\nThink YOU can crack it faster? Accept the dare:';
+        } else {
+          headline = n + ' couldn\'t crack the code!';
+          subline  = 'Can YOU break what broke them?';
+          cta      = 'Crack what they couldn\'t!';
+          wa       = n + ' couldn\'t crack the Password Breaker code!' +
+                     '\nThink YOU can crack it where they failed? Accept the dare:';
+        }
+      }
+    }
+
+    return { headline: headline, subline: subline, cta: cta, wa: wa };
+  }
+
+
   function _drawCard(playerName, callback) {
     if (_cache) { callback(_cache); return; }
 
@@ -253,26 +710,24 @@
       ctx.strokeStyle = ul; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(W/2-130,176); ctx.lineTo(W/2+130,176); ctx.stroke();
 
-      /* ── Headline ───────────────────────────────────────────────── */
-      /* With name:    "Beat Arjun's score!"  +  "Arjun is challenging you!" */
-      /* Without name: game's own winner text (e.g. "White Wins!")           */
-      var headline, subline;
-      if (name) {
-        headline = 'Beat ' + _safe(name,16) + "'s score!";
-        subline  = _safe(name,16) + ' is challenging you!';
-      } else {
-        headline = _safe(_r.winner,28) || 'WINNER';
-        subline  = '';
-      }
+      /* ── Headline — game-specific contextual message ─────────────── */
+      var _msg = _gameMsg(name);
+      var headline = _safe(_msg.headline, 34) || (_safe(_r.winner,28) || 'WINNER');
+      var subline  = _safe(_msg.subline,  54) || '';
 
-      ctx.font = 'bold 34px Arial,sans-serif';
+      ctx.font = 'bold 30px Arial,sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      /* shrink font if too long */
+      if (ctx.measureText(headline).width > W - 80) {
+        ctx.font = 'bold 24px Arial,sans-serif';
+      }
       ctx.fillText(headline, W/2, 214);
 
       if (subline) {
-        ctx.font = '15px Arial,sans-serif';
+        ctx.font = '14px Arial,sans-serif';
         ctx.fillStyle = _rgba(acc,0.85);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(subline, W/2, 240);
       }
 
@@ -309,13 +764,13 @@
       ctx.fillStyle = _rgba(acc,0.08); ctx.fill();
       ctx.strokeStyle = _rgba(acc,0.28); ctx.lineWidth=1; ctx.stroke();
 
-      var cta = name
+      var cta = _safe(_msg.cta || (name
         ? 'Can YOU beat ' + _safe(name,14) + ' at ' + (_safe(_r.game,16)||'DuelZone') + '?'
-        : 'Play ' + (_safe(_r.game,18)||'DuelZone') + ' on DuelZone — beat this score!';
+        : 'Play ' + (_safe(_r.game,18)||'DuelZone') + ' on DuelZone!'), 68);
       ctx.font = '14px Arial,sans-serif';
       ctx.fillStyle = acc;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(cta.slice(0,68), W/2, by+20);
+      ctx.fillText(cta, W/2, by+20);
 
       ctx.font = '13px Arial,sans-serif';
       ctx.fillStyle = 'rgba(255,255,255,0.48)';
@@ -472,11 +927,9 @@
 
   function _wa() {
     var name = _getName() || 'Someone';
-    var game = _r.game || 'DuelZone';
+    var msg  = _gameMsg(name);
     var text = [
-      name + ' is challenging you to ' + game + ' on DuelZone!',
-      _r.detail ? _r.detail : '',
-      'Beat their score if you dare:',
+      msg.wa || (name + ' is challenging you on DuelZone!'),
       _buildURL(_getName())
     ].filter(Boolean).join('\n');
 
@@ -489,9 +942,9 @@
 
   function _ig() {
     var name    = _getName() || 'Someone';
-    var caption = name + ' is challenging you to ' + (_r.game||'DuelZone') + ' on DuelZone!\n' +
-      (_r.detail ? _r.detail + '\n' : '') +
-      'Beat their score: ' + _buildURL(_getName());
+    var _igMsg  = _gameMsg(name);
+    var caption = (_igMsg.wa || (name + ' is challenging you on DuelZone!')) +
+      '\n' + _buildURL(_getName());
 
     var box  = document.getElementById('dz-share-ig-caption');
     var wrap = document.getElementById('dz-share-ig-wrap');
