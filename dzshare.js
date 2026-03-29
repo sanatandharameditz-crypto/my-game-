@@ -94,14 +94,29 @@
     _r.isWin  = d.isWin  !== false;
     _cache    = null; /* force card redraw */
 
-    /* ── Beat-challenge check ────────────────────────────────────── */
+    /* ── Beat-challenge check ────────────────────────────────────────
+       Fires when Player 2 wins the SAME game Arjun challenged them in.
+       For games where lower score = better (chess moves, time-based),
+       Player 2 beats Arjun if their score < Arjun's score.
+       For all other games Player 2 beats Arjun if score > Arjun's.
+       If there is no numeric score to compare, just winning is enough.
+       ─────────────────────────────────────────────────────────────── */
     if (_r.isWin && _ch.name && _ch.slug &&
-        (_r.slug === _ch.slug || _r.slug === '' )) {
-      /* lower-is-better games: chess (moves), minesweeper/sudoku (time) */
-      var lowerBetter = ['chess', 'minesweeper', 'sudoku', 'darts'];
-      var beats = lowerBetter.indexOf(_r.slug) !== -1
-        ? (_r.score > 0 && _ch.score > 0 && _r.score < _ch.score)
-        : (_r.score > 0 && _ch.score > 0 && _r.score > _ch.score);
+        (_r.slug === _ch.slug || _r.slug === '')) {
+
+      var lowerBetter = ['chess', 'minesweeper', 'sudoku'];
+      var beats;
+
+      if (_r.score > 0 && _ch.score > 0) {
+        /* Both have a numeric score — compare properly */
+        beats = lowerBetter.indexOf(_r.slug) !== -1
+          ? (_r.score < _ch.score)   /* fewer moves/seconds = better */
+          : (_r.score >= _ch.score); /* higher score = better (or equal — they matched!) */
+      } else {
+        /* No numeric score on either side — just winning counts as beating */
+        beats = true;
+      }
+
       if (beats) setTimeout(_showBeatPopup, 1400);
     }
   }
@@ -925,102 +940,137 @@
      Share actions
      ================================================================ */
 
-  function _wa() {
-    var name = _getName() || 'Someone';
-    var msg  = _gameMsg(name);
-    var text = [
-      msg.wa || (name + ' is challenging you on DuelZone!'),
-      _buildURL(_getName())
-    ].filter(Boolean).join('\n');
+  /* ================================================================
+     _shareWithImage
+     ─────────────────────────────────────────────────────────────────
+     Core share helper used by both _wa() and _ig().
 
-    var a = document.createElement('a');
-    a.href = 'https://wa.me/?text=' + encodeURIComponent(text);
-    a.target = '_blank'; a.rel = 'noopener noreferrer';
-    a.style.display = 'none';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+     Priority order:
+       1. Web Share API with PNG file attached (Android Chrome, iOS Safari 15+)
+          → opens native share sheet with image + text + link
+       2. Web Share API text only (older mobile browsers)
+          → opens native share sheet with text + link only
+       3. Desktop fallback → opens wa.me or copies caption
+          (image cannot be attached on desktop without user saving first —
+           this is a browser security restriction, not something we can bypass)
+     ================================================================ */
+  function _dataURLtoFile(dataURL, filename) {
+    try {
+      var arr  = dataURL.split(',');
+      var mime = arr[0].match(/:(.*?);/)[1];
+      var raw  = atob(arr[1]);
+      var n    = raw.length;
+      var u8   = new Uint8Array(n);
+      while (n--) u8[n] = raw.charCodeAt(n);
+      return new File([u8], filename, { type: mime });
+    } catch (e) { return null; }
   }
 
-  function _ig() {
-    var name    = _getName() || 'Someone';
-    var _igMsg  = _gameMsg(name);
-    var caption = (_igMsg.wa || (name + ' is challenging you on DuelZone!')) +
-      '\n' + _buildURL(_getName());
+  function _shareWithImage(text, url, onDesktopFallback) {
+    var link    = url || _buildURL(_getName());
+    var fullMsg = text + '\n' + link;
+    var fname   = 'duelzone-challenge.png';
 
-    var box  = document.getElementById('dz-share-ig-caption');
-    var wrap = document.getElementById('dz-share-ig-wrap');
-    if (box)  box.textContent  = caption;
-    if (wrap) wrap.style.display = 'block';
-
-    function _withFile(url) {
+    /* ── Try Web Share API with file (best: image + text + link) ── */
+    function _tryWithFile(dataURL) {
       if (!navigator.share || !navigator.canShare) return false;
+      var f = _dataURLtoFile(dataURL, fname);
+      if (!f) return false;
       try {
-        var p  = url.split(','), mime = p[0].match(/:(.*?);/)[1];
-        var r  = atob(p[1]), n = r.length, u8 = new Uint8Array(n);
-        while (n--) u8[n] = r.charCodeAt(n);
-        var f  = new File([u8], 'duelzone-challenge.png', {type:mime});
-        if (!navigator.canShare({files:[f]})) return false;
-        navigator.share({title: (_r.game||'DuelZone')+' Challenge', text:caption, files:[f]}).catch(function(){});
+        if (!navigator.canShare({ files: [f] })) return false;
+        navigator.share({
+          title: (_r.game || 'DuelZone') + ' Challenge — DuelZone',
+          text:  fullMsg,
+          files: [f]
+        }).catch(function () {});
         return true;
-      } catch(e) { return false; }
+      } catch (e) { return false; }
     }
 
-    function _textOnly() {
+    /* ── Try Web Share API text + link only (no file) ─────────── */
+    function _tryTextOnly() {
       if (!navigator.share) return false;
-      navigator.share({title: (_r.game||'DuelZone')+' Challenge', text:caption}).catch(function(){});
+      navigator.share({
+        title: (_r.game || 'DuelZone') + ' Challenge — DuelZone',
+        text:  fullMsg
+      }).catch(function () {});
       return true;
     }
 
+    /* ── Generate card then share ──────────────────────────────── */
     if (_cache) {
-      if (!_withFile(_cache) && !_textOnly()) _saveImg();
+      if (!_tryWithFile(_cache) && !_tryTextOnly()) onDesktopFallback(link, fullMsg);
       return;
     }
-    _drawCard(_getName(), function(url) {
-      if (url) { if (!_withFile(url) && !_textOnly()) _saveImg(); }
-      else _textOnly();
+    _drawCard(_getName(), function (dataURL) {
+      if (dataURL) {
+        if (!_tryWithFile(dataURL) && !_tryTextOnly()) onDesktopFallback(link, fullMsg);
+      } else {
+        if (!_tryTextOnly()) onDesktopFallback(link, fullMsg);
+      }
     });
   }
 
+  /* ── WhatsApp ──────────────────────────────────────────────────
+     Mobile: native share sheet opens (image + text + link attached)
+     Desktop: wa.me link opens in browser with text + link          */
+  function _wa() {
+    var name = _getName() || 'Someone';
+    var msg  = _gameMsg(name);
+    var text = msg.wa || (name + ' is challenging you at ' + (_r.game||'DuelZone') + '!');
+
+    _shareWithImage(text, _buildURL(_getName()), function (link, fullMsg) {
+      /* Desktop fallback — open WhatsApp web with text */
+      var a     = document.createElement('a');
+      a.href    = 'https://wa.me/?text=' + encodeURIComponent(fullMsg);
+      a.target  = '_blank';
+      a.rel     = 'noopener noreferrer';
+      a.style.display = 'none';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+  }
+
+  /* ── Instagram / General Share ─────────────────────────────────
+     Mobile: native share sheet opens (image + text + link attached)
+     Desktop: copies the challenge link to clipboard + shows notice  */
+  function _ig() {
+    var name = _getName() || 'Someone';
+    var msg  = _gameMsg(name);
+    var text = msg.wa || (name + ' is challenging you at ' + (_r.game||'DuelZone') + '!');
+
+    _shareWithImage(text, _buildURL(_getName()), function (link) {
+      /* Desktop fallback — copy link */
+      _fbCopy(link);
+      var btn = document.getElementById('dz-share-ig-btn');
+      if (btn) {
+        btn.textContent = '&#10003; Link Copied!';
+        setTimeout(function () { btn.innerHTML = '&#128248; Share / IG'; }, 2500);
+      }
+    });
+  }
+
+  /* ── Copy Link ─────────────────────────────────────────────────── */
   function _copy() {
     var link = _buildURL(_getName());
     var btn  = document.getElementById('dz-share-copy-btn');
     function done() {
-      if (btn) { btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = 'Copy Link'; }, 2000); }
+      if (btn) {
+        btn.innerHTML = '&#10003; Copied!';
+        setTimeout(function () { btn.innerHTML = '&#128279; Copy Link'; }, 2000);
+      }
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(link).then(done).catch(function(){ _fbCopy(link); done(); });
+      navigator.clipboard.writeText(link).then(done).catch(function () { _fbCopy(link); done(); });
     } else { _fbCopy(link); done(); }
   }
 
-  function _copyCaption() {
-    var box = document.getElementById('dz-share-ig-caption');
-    var btn = document.getElementById('dz-share-ig-copy');
-    if (!box) return;
-    var text = box.textContent;
-    function done() {
-      if (btn) { btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = 'Copy Caption'; }, 2000); }
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done).catch(function(){ _fbCopy(text); done(); });
-    } else { _fbCopy(text); done(); }
-  }
-
-  function _saveImg() {
-    function doSave(url) {
-      if (!url) { alert('Image unavailable — try Copy Link instead.'); return; }
-      var a = document.createElement('a');
-      a.href = url; a.download = 'duelzone-challenge.png';
-      a.style.display = 'none';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    }
-    if (_cache) { doSave(_cache); return; }
-    _drawCard(_getName(), doSave);
-  }
-
+  /* ── Clipboard textarea fallback ───────────────────────────────── */
   function _fbCopy(text) {
     var ta = document.createElement('textarea');
-    ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;opacity:0;';
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;opacity:0;';
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); } catch(e) {}
+    try { document.execCommand('copy'); } catch (e) {}
     document.body.removeChild(ta);
   }
 
@@ -1035,23 +1085,46 @@
       pop.innerHTML =
         '<div class="dz-beat-inner">' +
           '<div class="dz-beat-emoji">&#127881;</div>' +
-          '<div class="dz-beat-title">You beat ' +
-            '<span id="dz-beat-name"></span>\'s score!</div>' +
+          '<div class="dz-beat-title" id="dz-beat-title"></div>' +
           '<div class="dz-beat-detail" id="dz-beat-detail"></div>' +
           '<div class="dz-beat-btns">' +
             '<button class="dz-beat-share-btn" onclick="DZShare.openModal();' +
               'document.getElementById(\'dz-beat-popup\').classList.remove(\'active\')">' +
-              'Share it back!</button>' +
+              'Send them your scorecard!</button>' +
             '<button class="dz-beat-close-btn" ' +
               'onclick="document.getElementById(\'dz-beat-popup\').classList.remove(\'active\')">' +
-              'Maybe later</button>' +
+              'Skip</button>' +
           '</div></div>';
       document.body.appendChild(pop);
     }
-    var n = document.getElementById('dz-beat-name');
+
+    /* Build title — personalised per game */
+    var chName = _safe(_ch.name, 20);
+    var myDetail = _r.detail ? _safe(_r.detail, 50) : '';
+    var chScore  = _ch.score;
+    var myScore  = _r.score;
+
+    var title, detail;
+
+    /* Score comparison text */
+    var lowerBetter = ['chess', 'minesweeper', 'sudoku'];
+    var scoreMsg = '';
+    if (myScore > 0 && chScore > 0) {
+      if (lowerBetter.indexOf(_r.slug) !== -1) {
+        scoreMsg = 'You did it in ' + myScore + ', they needed ' + chScore + '!';
+      } else {
+        scoreMsg = 'Your score: ' + myScore + '  |  ' + chName + '\'s score: ' + chScore;
+      }
+    }
+
+    title = 'You beat ' + chName + '\'s challenge!';
+    detail = (myDetail || scoreMsg) +
+             (myDetail && scoreMsg ? '\n' + scoreMsg : '');
+
+    var t = document.getElementById('dz-beat-title');
     var d = document.getElementById('dz-beat-detail');
-    if (n) n.textContent = _ch.name;
-    if (d) d.textContent = _r.detail || '';
+    if (t) t.textContent = title;
+    if (d) d.textContent = detail;
     pop.classList.add('active');
   }
 
@@ -1089,8 +1162,22 @@
       document.body.appendChild(banner);
     }
 
-    /* 2 s delay — game screen needs time to render before banner slides in */
-    setTimeout(function () { banner.classList.add('active'); }, 2000);
+    /* Wait for the game to actually be on screen before showing the banner.
+       We poll until screen-hub is hidden (meaning a game is showing),
+       then add the 'active' class. Max wait: 5 s. */
+    var _bannerTries = 0;
+    function _tryShowBanner() {
+      _bannerTries++;
+      var hub = document.getElementById('screen-hub');
+      var hubHidden = hub && (hub.classList.contains('hidden') ||
+                              hub.style.display === 'none');
+      if (hubHidden || _bannerTries > 25) {
+        setTimeout(function () { banner.classList.add('active'); }, 600);
+      } else {
+        setTimeout(_tryShowBanner, 200);
+      }
+    }
+    setTimeout(_tryShowBanner, 400);
   }
 
   /* ================================================================
@@ -1116,6 +1203,11 @@
     }
 
     _showChallengeBanner();
+
+    /* Hide the Save Image button if it still exists in the DOM
+       (some users may have an old cached version of index.html) */
+    var saveBtn = document.getElementById('dz-share-save-btn');
+    if (saveBtn) saveBtn.style.display = 'none';
   }
 
   if (document.readyState === 'loading') {
@@ -1134,9 +1226,7 @@
     getChallenge: function () { return _ch; },
     _wa:          _wa,
     _ig:          _ig,
-    _copy:        _copy,
-    _saveImg:     _saveImg,
-    _copyCaption: _copyCaption
+    _copy:        _copy
   };
 
 })(window);

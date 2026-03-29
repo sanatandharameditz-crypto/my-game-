@@ -8696,9 +8696,23 @@ window._dzRouter = (function () {
   // ── Build full path including base ────────────────────────
   function _fullPath(slug) {
     // _base is '/hi-/' or '/'
-    // result: '/hi-/chess' or '/chess'
+    // result: '/chess' or '/chess?challenge=Rahul&score=24&diff=easy&slug=chess'
     var b = _base === '/' ? '' : _base.replace(/\/$/, '');
-    return b + '/' + (slug || '');
+    var path = b + '/' + (slug || '');
+
+    /* Preserve challenge params so dzshare.js can read them after replaceState.
+       Only keep the DuelZone challenge params — not ?game= (already in the path). */
+    try {
+      var sp  = new URLSearchParams(window.location.search);
+      var out = new URLSearchParams();
+      ['challenge','score','diff','slug'].forEach(function(k) {
+        var v = sp.get(k); if (v) out.set(k, v);
+      });
+      var qs = out.toString();
+      if (qs) path = path + '?' + qs;
+    } catch(e) {}
+
+    return path;
   }
 
   // ── Push history entry ────────────────────────────────────
@@ -8798,11 +8812,24 @@ window._dzRouter = (function () {
     var screenId = slug ? SLUG_TO_SCREEN[slug] : null;
 
     try {
-      history.replaceState(
-        { screenId: screenId || null },
-        '',
-        screenId ? _fullPath(slug) : _base
-      );
+      /* For challenge links (/?game=chess&challenge=Rahul...) we MUST
+         preserve the challenge params in the history state URL so
+         dzshare.js can read them when it parses _ch on load.
+         _fullPath() now carries the challenge params forward. */
+      var _startPath = screenId ? _fullPath(slug) : _base;
+      /* If no screenId but there are challenge params, keep them on _base */
+      if (!screenId) {
+        try {
+          var _sp = new URLSearchParams(window.location.search);
+          var _op = new URLSearchParams();
+          ['challenge','score','diff','slug'].forEach(function(k){
+            var v = _sp.get(k); if (v) _op.set(k, v);
+          });
+          var _qs = _op.toString();
+          if (_qs) _startPath = _base + '?' + _qs;
+        } catch(e) {}
+      }
+      history.replaceState({ screenId: screenId || null }, '', _startPath);
     } catch (e) {}
 
     _updateMeta(screenId || null);
@@ -8818,6 +8845,7 @@ window._dzRouter = (function () {
       if (h) { h.classList.add('hidden'); h.style.setProperty('display','none','important'); }
       try {
         history.replaceState({ screenId: SLUG_TO_SCREEN[slug] || null }, '', _fullPath(slug));
+        /* Note: _fullPath already preserves ?challenge=... params */
       } catch(e) {}
       try {
         _routeFromSlug(slug);
