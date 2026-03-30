@@ -235,30 +235,33 @@ html, body {
 }
 
 /* Each card enters with a staggered delay */
-.arena-card:nth-child(1)  { animation-delay: 0.10s; }
-.arena-card:nth-child(2)  { animation-delay: 0.18s; }
-.arena-card:nth-child(3)  { animation-delay: 0.26s; }
-.arena-card:nth-child(4)  { animation-delay: 0.34s; }
-.arena-card:nth-child(5)  { animation-delay: 0.42s; }
-.arena-card:nth-child(6)  { animation-delay: 0.50s; }
-.arena-card:nth-child(7)  { animation-delay: 0.58s; }
-.arena-card:nth-child(8)  { animation-delay: 0.66s; }
-.arena-card:nth-child(9)  { animation-delay: 0.74s; }
-.arena-card:nth-child(10) { animation-delay: 0.82s; }
-.arena-card:nth-child(11) { animation-delay: 0.90s; }
-.arena-card:nth-child(12) { animation-delay: 0.98s; }
-.arena-card:nth-child(13) { animation-delay: 1.06s; }
-.arena-card:nth-child(14) { animation-delay: 1.14s; }
-.arena-card:nth-child(15) { animation-delay: 1.22s; }
-.arena-card:nth-child(16) { animation-delay: 1.30s; }
-.arena-card:nth-child(17) { animation-delay: 1.38s; }
-.arena-card:nth-child(18) { animation-delay: 1.46s; }
-.arena-card:nth-child(19) { animation-delay: 1.54s; }
-.arena-card:nth-child(20) { animation-delay: 1.62s; }
-.arena-card:nth-child(21) { animation-delay: 1.70s; }
-.arena-card:nth-child(22) { animation-delay: 1.78s; }
-.arena-card:nth-child(23) { animation-delay: 1.86s; }
-.arena-card:nth-child(24) { animation-delay: 1.94s; }
+/* Cards 1-8 (first fold, both columns): nice stagger */
+.arena-card:nth-child(1)  { animation-delay: 0.06s; }
+.arena-card:nth-child(2)  { animation-delay: 0.10s; }
+.arena-card:nth-child(3)  { animation-delay: 0.14s; }
+.arena-card:nth-child(4)  { animation-delay: 0.18s; }
+.arena-card:nth-child(5)  { animation-delay: 0.22s; }
+.arena-card:nth-child(6)  { animation-delay: 0.26s; }
+.arena-card:nth-child(7)  { animation-delay: 0.30s; }
+.arena-card:nth-child(8)  { animation-delay: 0.34s; }
+/* Cards 9-16: faster stagger — user may be scrolling */
+.arena-card:nth-child(9)  { animation-delay: 0.38s; }
+.arena-card:nth-child(10) { animation-delay: 0.40s; }
+.arena-card:nth-child(11) { animation-delay: 0.42s; }
+.arena-card:nth-child(12) { animation-delay: 0.44s; }
+.arena-card:nth-child(13) { animation-delay: 0.46s; }
+.arena-card:nth-child(14) { animation-delay: 0.48s; }
+.arena-card:nth-child(15) { animation-delay: 0.50s; }
+.arena-card:nth-child(16) { animation-delay: 0.52s; }
+/* Cards 17-27: minimal delay — already off-screen at load */
+.arena-card:nth-child(17) { animation-delay: 0.54s; }
+.arena-card:nth-child(18) { animation-delay: 0.56s; }
+.arena-card:nth-child(19) { animation-delay: 0.58s; }
+.arena-card:nth-child(20) { animation-delay: 0.60s; }
+.arena-card:nth-child(21) { animation-delay: 0.60s; }
+.arena-card:nth-child(22) { animation-delay: 0.60s; }
+.arena-card:nth-child(23) { animation-delay: 0.60s; }
+.arena-card:nth-child(24) { animation-delay: 0.60s; }
 
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(32px) scale(0.95); }
@@ -304,6 +307,15 @@ html, body {
 .arena-card:active {
   transform: translateY(-4px) scale(1.01);
   transition-duration: 0.1s;
+}
+
+/* On touch devices: stronger tap feedback — users need to feel the tap */
+@media (hover: none) and (pointer: coarse) {
+  .arena-card:active {
+    transform: scale(0.97);
+    border-color: var(--accent);
+    transition-duration: 0.08s;
+  }
 }
 
 /* Colored top accent bar */
@@ -743,34 +755,109 @@ html, body {
   #title      { font-size: clamp(2rem, 8vw, 3.5rem); }
 }
 
-/* Small phones (≤480px) — stay 2-col, compact cards */
+/* ── Small phones (≤480px) ─────────────────────────────────────────
+   Fixes applied:
+   1. card-desc is now VISIBLE — user needs to know what the game is
+   2. PLAY button has min-height: 44px — proper touch target (was ~26px)
+   3. Header is more compact — leaves more room for game cards
+   4. card-inner is horizontal (icon + text side by side) on small screens
+      so more content fits without making cards taller
+   ─────────────────────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  #screen-hub { padding: 60px 10px 24px !important; gap: 20px; }
+  /* Hub container */
+  #screen-hub { padding: 56px 10px 24px !important; gap: 16px; }
+
+  /* Grid — stay 2 columns but tighter gap */
   #arena-grid { gap: 10px; }
-  .card-inner { padding: 14px 12px 12px; padding-right: 40px; gap: 9px; }
-  .card-icon  { width: 42px; height: 42px; border-radius: 10px; }
-  .card-icon svg { width: 24px !important; height: 24px !important; }
-  .card-title { font-size: 0.8rem; letter-spacing: 0.02em; margin-bottom: 3px; }
-  .card-desc  { font-size: 0.7rem; display: none; }
-  .card-btn   { padding: 7px 10px; font-size: 0.58rem; letter-spacing: 0.1em; }
+
+  /* Card inner — switch to horizontal layout: [icon] [text+btn] */
+  .card-inner {
+    flex-direction: row;
+    align-items: center;
+    padding: 14px 40px 14px 14px;
+    gap: 12px;
+  }
+
+  /* Icon — smaller but still clear */
+  .card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+  .card-icon svg { width: 22px !important; height: 22px !important; }
+
+  /* Text block takes remaining space */
+  .card-text { flex: 1; min-width: 0; }
+
+  /* Title — readable, doesn't overflow */
+  .card-title {
+    font-size: 0.78rem;
+    letter-spacing: 0.01em;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Description — SHOW IT (was display:none — bad UX) */
+  .card-desc {
+    font-size: 0.65rem;
+    display: block;           /* ← FIXED: was display:none */
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* PLAY button — proper 44px touch target height */
+  .card-btn {
+    min-height: 40px;         /* ← FIXED: was ~26px — too small to tap */
+    padding: 0 12px;
+    font-size: 0.58rem;
+    letter-spacing: 0.10em;
+    margin-top: 6px;
+  }
   .card-btn .btn-arrow { display: none; }
-  .card-save-btn { width: 26px; height: 26px; bottom: 8px; right: 8px; top: auto; }
+
+  /* Save / setup buttons */
+  .card-save-btn  { width: 26px; height: 26px; bottom: 8px; right: 8px; top: auto; }
   .card-save-btn svg { width: 12px; height: 12px; }
   .card-setup-btn { width: 22px; height: 22px; border-radius: 6px; }
   .card-setup-btn svg { width: 10px; height: 10px; }
-  .card-actions { gap: 6px; }
-  #title      { font-size: clamp(1.7rem, 9vw, 2.4rem); letter-spacing: 0.08em; }
-  #subtitle   { font-size: 0.62rem; letter-spacing: 0.28em; }
-  .sword      { display: none; }
+  .card-actions   { gap: 6px; }
+
+  /* Header — compact on mobile */
+  #title    { font-size: clamp(1.6rem, 8.5vw, 2.2rem); letter-spacing: 0.07em; }
+  #subtitle { font-size: 0.60rem; letter-spacing: 0.25em; margin-top: 4px; }
+  .title-bar { width: 56px; margin-top: 6px; }
+  .sword    { display: none; }
 }
 
-/* Tiny phones (≤360px) — minimum sizes */
-@media (max-width: 360px) {
-  #arena-grid { gap: 8px; }
-  .card-inner { padding: 11px 10px 10px; padding-right: 36px; gap: 7px; }
-  .card-icon  { width: 36px; height: 36px; }
-  .card-title { font-size: 0.72rem; }
-  #title      { font-size: 1.6rem; }
+/* ── Very small phones (≤390px) — single column for breathing room ──────
+   On a 360-390px screen, 2 columns makes cards too narrow to read.
+   1 column gives proper card width and big enough touch targets.
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 390px) {
+  #arena-grid {
+    grid-template-columns: 1fr;  /* ← 1 column on tiny phones */
+    gap: 8px;
+  }
+
+  /* With 1 col, cards are wider — use vertical layout again */
+  .card-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 40px 12px 14px;
+    gap: 8px;
+  }
+  .card-icon  { width: 40px; height: 40px; }
+  .card-title { font-size: 0.82rem; white-space: normal; }
+  .card-desc  { font-size: 0.68rem; white-space: normal; display: block; }
+  .card-btn   { min-height: 40px; padding: 0 14px; font-size: 0.60rem; }
+
+  #title      { font-size: 1.55rem; }
+  #screen-hub { padding: 52px 10px 20px !important; gap: 14px; }
 }
 
 
@@ -9981,6 +10068,19 @@ select {
 /* ── Adjust screen-hub top padding (no fixed navbar now, just floating hamburger) ── */
 #screen-hub {
   padding-top: 72px !important;
+}
+
+/* On mobile, reduce top padding so more game cards are visible 
+   in the first fold without scrolling */
+@media (max-width: 720px) {
+  #screen-hub {
+    padding-top: 60px !important;
+  }
+}
+@media (max-width: 480px) {
+  #screen-hub {
+    padding-top: 52px !important;
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
